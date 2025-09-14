@@ -1,0 +1,181 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  judge0:
+    image: judge0/judge0:latest
+    environment:
+      PORT: 2358
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      REDIS_URL: redis://redis:6379/2
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      RUN_MIGRATIONS: "true"
+      ALLOW_ORIGIN: "*"
+      RAILS_ENV: production
+      ENABLE_WAIT_RESULT: "true"
+      ENABLE_COMPILER_OPTIONS: "false"
+      ENABLE_ISOLATE: "false"
+      ENABLE_COMMAND_LINE_ARGUMENTS: "false"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  judge0-worker:
+    image: judge0/judge0:latest
+    command: ["./scripts/workers"]
+    privileged: true
+    volumes:
+      - /tmp:/tmp:rw
+      - /var/log/judge0:/var/log/judge0:rw
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      REDIS_URL: redis://redis:6379/2
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      RAILS_ENV: production
+      ENABLE_ISOLATE: "false"
+      ENABLE_COMPILER_OPTIONS: "false"
+      ENABLE_COMMAND_LINE_ARGUMENTS: "false"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      judge0:
+        condition: service_started
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ../../..
+      dockerfile: infra/docker/backend/Dockerfile
+    command: ["/bin/sh", "-c", "chmod +x infra/docker/backend/entrypoint.sh && infra/docker/backend/entrypoint.sh"]
+    environment:
+      DJANGO_SETTINGS_MODULE: student_auth.settings
+      SECRET_KEY: ${SECRET_KEY}
+      DEBUG: "0"
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_HOST: db
+      POSTGRES_PORT: "5432"
+      JUDGE0_URL: http://judge0:2358
+      JUDGE0_AUTH_TOKEN: ${JUDGE0_AUTH_TOKEN}
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
+      # Ensure collectstatic outputs here
+      STATIC_ROOT: /workspace/staticfiles
+      MEDIA_ROOT: /workspace/media
+    depends_on:
+      db:
+        condition: service_healthy
+      judge0:
+        condition: service_started
+      redis:
+        condition: service_healthy
+    volumes:
+      - static_data:/workspace/staticfiles
+      - media_data:/workspace/media
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: ../../..
+      dockerfile: infra/docker/backend/Dockerfile
+    command: ["celery", "-A", "student_auth", "worker", "-l", "info", "-P", "solo"]
+    environment:
+      DJANGO_SETTINGS_MODULE: student_auth.settings
+      SECRET_KEY: ${SECRET_KEY}
+      DEBUG: "0"
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_HOST: db
+      POSTGRES_PORT: "5432"
+      JUDGE0_URL: http://judge0:2358
+      JUDGE0_AUTH_TOKEN: ${JUDGE0_AUTH_TOKEN}
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
+    depends_on:
+      db:
+        condition: service_healthy
+      judge0:
+        condition: service_started
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  beat:
+    build:
+      context: ../../..
+      dockerfile: infra/docker/backend/Dockerfile
+    command: ["celery", "-A", "student_auth", "beat", "-l", "info"]
+    environment:
+      DJANGO_SETTINGS_MODULE: student_auth.settings
+      SECRET_KEY: ${SECRET_KEY}
+      DEBUG: "0"
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_HOST: db
+      POSTGRES_PORT: "5432"
+      JUDGE0_URL: http://judge0:2358
+      JUDGE0_AUTH_TOKEN: ${JUDGE0_AUTH_TOKEN}
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
+    depends_on:
+      db:
+        condition: service_healthy
+      judge0:
+        condition: service_started
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ../../..
+      dockerfile: infra/docker/nginx/Dockerfile.prod
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL}
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    volumes:
+      - static_data:/var/www/static:ro
+      - media_data:/var/www/media:ro
+    restart: unless-stopped
+
+volumes:
+  db_data:
+  static_data:
+  media_data:
+
+networks:
+  default:
+    name: dda_contest_prod
