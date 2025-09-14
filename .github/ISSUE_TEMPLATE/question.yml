@@ -1,0 +1,102 @@
+name: Question
+description: Ask a question about the platform or get help
+title: "[QUESTION] "
+labels: ["question", "triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have a question? We're here to help! Please provide as much detail as possible so we can assist you effectively.
+
+  - type: dropdown
+    id: question_type
+    attributes:
+      label: Question Type
+      description: What type of question is this?
+      options:
+        - Setup/Installation
+        - Development/Contributing
+        - API Usage
+        - Feature Clarification
+        - Best Practices
+        - Troubleshooting
+        - Architecture/Design
+        - Performance
+        - Security
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Your Question
+      description: What would you like to know?
+      placeholder: Please describe your question in detail...
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Provide context about what you're trying to accomplish
+      placeholder: |
+        - What are you trying to build/achieve?
+        - What approach have you tried?
+        - Where did you get stuck?
+
+  - type: textarea
+    id: current_understanding
+    attributes:
+      label: Current Understanding
+      description: What do you already know or understand about this topic?
+      placeholder: Share your current understanding so we can provide the most helpful response...
+
+  - type: textarea
+    id: research
+    attributes:
+      label: Research Done
+      description: What have you already tried or researched?
+      placeholder: |
+        - Documentation sections you've read
+        - Search terms you've tried
+        - Solutions you've attempted
+        - Similar issues you've found
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment (if relevant)
+      description: If this is a technical question, please provide environment details
+      placeholder: |
+        - Operating System:
+        - Docker version:
+        - Python version:
+        - Node.js version:
+        - Browser:
+
+  - type: textarea
+    id: code_samples
+    attributes:
+      label: Code Samples (if relevant)
+      description: If relevant, provide code samples or configuration
+      placeholder: |
+        ```python
+        # Your code here
+        ```
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      description: Please confirm the following
+      options:
+        - label: I have searched existing issues and discussions
+          required: true
+        - label: I have read the relevant documentation
+          required: true
+        - label: I have provided sufficient context for my question
+          required: true

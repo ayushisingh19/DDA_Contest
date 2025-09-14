@@ -1,0 +1,488 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up - DDA Contests</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0f0f23;
+      color: #ffffff;
+    }
+    
+    .glow-btn {
+      background: linear-gradient(135deg, #f59e0b, #f97316);
+      color: #000;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 20px rgba(245, 158, 11, 0.4);
+    }
+    
+    .glow-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(245, 158, 11, 0.6);
+    }
+    
+    .form-input {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+    }
+    
+    .form-input:focus {
+      border-color: #8b5cf6;
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+      background: rgba(255, 255, 255, 0.08);
+    }
+    
+    .form-input::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+    
+    .auth-tabs {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 4px;
+    }
+    
+    .tab-button {
+      transition: all 0.3s ease;
+      border-radius: 8px;
+    }
+    
+    .tab-button.active {
+      background: rgba(139, 92, 246, 0.2);
+      color: #a855f7;
+    }
+
+    /* Responsive container for different screen sizes */
+    .main-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    /* Laptop screens (1024px to 1440px width, 600px to 900px height) */
+    @media screen and (min-width: 1024px) and (max-height: 900px) {
+      .main-container {
+        padding: 1.5rem 1rem;
+        align-items: flex-start;
+        padding-top: 2rem;
+      }
+      
+      .header-section {
+        margin-bottom: 1rem !important;
+      }
+      
+      .header-section h2 {
+        font-size: 1.5rem !important;
+        margin-bottom: 0.5rem !important;
+      }
+      
+      .form-card {
+        padding: 1.25rem !important;
+      }
+      
+      .form-input {
+        padding: 0.625rem 1rem 0.625rem 2.75rem !important;
+      }
+      
+      .auth-tabs {
+        margin-bottom: 1rem !important;
+      }
+      
+      .form-spacing {
+        gap: 0.75rem !important;
+      }
+      
+      .submit-btn {
+        padding: 0.75rem 1rem !important;
+        font-size: 0.95rem !important;
+      }
+    }
+
+    /* Standard laptop resolution (1366x768) */
+    @media screen and (width: 1366px) and (height: 768px) {
+      .main-container {
+        padding: 1rem;
+        align-items: flex-start;
+        padding-top: 1rem;
+      }
+      
+      .header-section {
+        margin-bottom: 0.5rem !important;
+      }
+      
+      .header-section h1 {
+        font-size: 1.25rem !important;
+      }
+      
+      .header-section h2 {
+        font-size: 1.25rem !important;
+        margin-bottom: 0.25rem !important;
+      }
+      
+      .header-section p {
+        font-size: 0.875rem !important;
+      }
+      
+      .form-card {
+        padding: 1rem !important;
+      }
+      
+      .form-input {
+        padding: 0.5rem 1rem 0.5rem 2.5rem !important;
+        font-size: 0.875rem !important;
+      }
+      
+      .auth-tabs {
+        margin-bottom: 0.5rem !important;
+      }
+      
+      .form-spacing {
+        gap: 0.5rem !important;
+      }
+      
+      .submit-btn {
+        padding: 0.5rem 1rem !important;
+        font-size: 0.875rem !important;
+      }
+    }
+
+    /* Smaller laptop screens (768px to 1024px width, under 800px height) */
+    @media screen and (min-width: 768px) and (max-width: 1024px) and (max-height: 800px) {
+      .main-container {
+        padding: 1rem;
+        align-items: flex-start;
+        padding-top: 1.5rem;
+      }
+      
+      .header-section {
+        margin-bottom: 0.75rem !important;
+      }
+      
+      .header-section h2 {
+        font-size: 1.375rem !important;
+      }
+      
+      .form-card {
+        padding: 1rem !important;
+      }
+      
+      .form-input {
+        padding: 0.5rem 1rem 0.5rem 2.5rem !important;
+      }
+      
+      .auth-tabs {
+        margin-bottom: 0.75rem !important;
+      }
+      
+      .form-spacing {
+        gap: 0.5rem !important;
+      }
+      
+      .submit-btn {
+        padding: 0.625rem 1rem !important;
+        font-size: 0.9rem !important;
+      }
+    }
+      
+      .form-input {
+        padding: 0.625rem 1rem 0.625rem 3rem !important;
+      }
+      
+      .form-spacing {
+        gap: 0.75rem !important;
+      }
+    }
+
+    /* Very short screens (under 600px height) */
+    @media screen and (max-height: 600px) {
+      .main-container {
+        align-items: flex-start;
+        padding: 0.5rem;
+        padding-top: 1rem;
+      }
+      
+      .header-section {
+        margin-bottom: 0.75rem !important;
+      }
+      
+      .header-section h1 {
+        font-size: 1.25rem !important;
+      }
+      
+      .header-section h2 {
+        font-size: 1.25rem !important;
+      }
+      
+      .form-card {
+        padding: 1rem !important;
+      }
+      
+      .form-input {
+        padding: 0.5rem 1rem 0.5rem 2.5rem !important;
+      }
+      
+      .auth-tabs {
+        margin-bottom: 1rem !important;
+      }
+      
+      .form-spacing {
+        gap: 0.5rem !important;
+      }
+    }
+
+    /* Large desktop screens */
+    @media screen and (min-width: 1440px) and (min-height: 900px) {
+      .main-container {
+        padding: 3rem 1rem;
+      }
+      
+      .form-card {
+        padding: 2.5rem !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-900 min-h-screen flex items-center justify-center p-4">
+
+  <!-- Background Pattern -->
+  <div class="fixed inset-0 opacity-10">
+    <div class="absolute inset-0" style="background-image: radial-gradient(circle at 25% 25%, #8b5cf6 0%, transparent 50%), radial-gradient(circle at 75% 75%, #06b6d4 0%, transparent 50%);"></div>
+  </div>
+
+  <div class="main-container">
+    <div class="relative w-full max-w-lg">
+      <!-- Header -->
+      <div class="header-section text-center mb-8">
+        <div class="flex items-center justify-center space-x-3 mb-4">
+          <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
+            <i data-lucide="code" class="w-6 h-6 text-white"></i>
+          </div>
+          <div>
+            <h1 class="text-2xl font-bold text-white">DDA Contests</h1>
+            <p class="text-sm text-gray-400">Decode Data Academy</p>
+          </div>
+        </div>
+        <h2 class="text-3xl font-bold text-white mb-2">Welcome to DDA Contests</h2>
+        <p class="text-gray-400">Join thousands of programmers in competitive coding</p>
+      </div>
+
+      <!-- Auth Form Card -->
+      <div class="form-card bg-gray-800 bg-opacity-50 backdrop-blur-lg rounded-2xl p-8 border border-gray-700 shadow-2xl">
+      
+      <!-- Tab Navigation -->
+      <div class="auth-tabs mb-8">
+        <div class="grid grid-cols-2 gap-1">
+          <a href="{% url 'login' %}" class="tab-button px-4 py-3 text-center text-gray-400 hover:text-white transition-colors">
+            Login
+          </a>
+          <div class="tab-button active px-4 py-3 text-center font-semibold cursor-default">
+            Sign Up
+          </div>
+        </div>
+      </div>
+
+      <!-- Registration Form -->
+      <form method="POST" class="form-spacing space-y-5" onsubmit="return validateForm()">
+        {% csrf_token %}
+        
+        <!-- Full Name -->
+        <div>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <i data-lucide="user" class="w-5 h-5 text-gray-400"></i>
+            </div>
+            <input type="text" name="name" placeholder="Full Name" required
+                   class="form-input w-full pl-12 pr-4 py-4 rounded-lg text-white focus:outline-none">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Email -->
+          <div>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <i data-lucide="mail" class="w-5 h-5 text-gray-400"></i>
+              </div>
+              <input type="email" name="email" placeholder="your@email.com" required
+                     class="form-input w-full pl-12 pr-4 py-4 rounded-lg text-white focus:outline-none">
+            </div>
+          </div>
+
+          <!-- Phone -->
+          <div>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <i data-lucide="phone" class="w-5 h-5 text-gray-400"></i>
+              </div>
+              <input type="tel" name="mobile" placeholder="+91 12345 67890" required
+                     class="form-input w-full pl-12 pr-4 py-4 rounded-lg text-white focus:outline-none">
+            </div>
+          </div>
+        </div>
+
+        <!-- College/Institution -->
+        <div>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <i data-lucide="graduation-cap" class="w-5 h-5 text-gray-400"></i>
+            </div>
+            <input type="text" name="college" placeholder="College/Institution" required
+                   class="form-input w-full pl-12 pr-4 py-4 rounded-lg text-white focus:outline-none">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Branch -->
+          <div>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <i data-lucide="book-open" class="w-5 h-5 text-gray-400"></i>
+              </div>
+              <input type="text" name="branch" placeholder="Branch/Department" required
+                     class="form-input w-full pl-12 pr-4 py-4 rounded-lg text-white focus:outline-none">
+            </div>
+          </div>
+
+          <!-- Passout Year -->
+          <div>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <i data-lucide="calendar" class="w-5 h-5 text-gray-400"></i>
+              </div>
+              <input type="number" name="passout_year" placeholder="Passout Year" min="2020" max="2030" required
+                     class="form-input w-full pl-12 pr-4 py-4 rounded-lg text-white focus:outline-none">
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Password -->
+          <div>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <i data-lucide="lock" class="w-5 h-5 text-gray-400"></i>
+              </div>
+              <input type="password" name="password" placeholder="Enter password" required
+                     class="form-input w-full pl-12 pr-4 py-4 rounded-lg text-white focus:outline-none">
+            </div>
+          </div>
+
+          <!-- Confirm Password -->
+          <div>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <i data-lucide="lock" class="w-5 h-5 text-gray-400"></i>
+              </div>
+              <input type="password" name="confirm_password" placeholder="Confirm password" required
+                     class="form-input w-full pl-12 pr-4 py-4 rounded-lg text-white focus:outline-none">
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="glow-btn w-full py-4 rounded-lg text-lg font-semibold flex items-center justify-center space-x-2">
+          <span>Create Account</span>
+          <i data-lucide="arrow-right" class="w-5 h-5"></i>
+        </button>
+
+        <!-- Terms -->
+        <p class="text-center text-sm text-gray-400">
+          By signing up, you agree to our 
+          <a href="#" class="text-purple-400 hover:text-purple-300">Terms of Service</a> 
+          and 
+          <a href="#" class="text-purple-400 hover:text-purple-300">Privacy Policy</a>
+        </p>
+
+      </form>
+
+      <!-- Login Link -->
+      <div class="mt-8 text-center">
+        <p class="text-gray-400">
+          Already have an account? 
+          <a href="{% url 'login' %}" class="text-purple-400 hover:text-purple-300 font-semibold">
+            Sign in here
+          </a>
+        </p>
+      </div>
+
+    </div>
+
+    <!-- Back to Home -->
+    <div class="text-center mt-6">
+      <a href="{% url 'home' %}" class="inline-flex items-center space-x-2 text-gray-400 hover:text-white transition-colors">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Back to Home</span>
+      </a>
+    </div>
+
+  </div>
+
+  <!-- Display Messages -->
+  {% if messages %}
+    <div class="fixed top-4 right-4 z-50 space-y-3">
+      {% for message in messages %}
+        <div class="max-w-sm bg-white border-l-4 rounded-lg shadow-lg
+          {% if message.tags == 'error' %}border-red-500{% elif message.tags == 'success' %}border-green-500{% else %}border-blue-500{% endif %}">
+          <div class="flex items-start p-4">
+            <div class="flex-shrink-0 mr-3">
+              {% if message.tags == 'error' %}
+                <i data-lucide="x-circle" class="w-5 h-5 text-red-600"></i>
+              {% elif message.tags == 'success' %}
+                <i data-lucide="check-circle" class="w-5 h-5 text-green-600"></i>
+              {% else %}
+                <i data-lucide="info" class="w-5 h-5 text-blue-600"></i>
+              {% endif %}
+            </div>
+            <div class="flex-1">
+              <p class="text-sm text-gray-900">{{ message }}</p>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <script>
+    lucide.createIcons();
+
+    function validateForm() {
+      const password = document.querySelector('input[name="password"]').value;
+      const confirmPassword = document.querySelector('input[name="confirm_password"]').value;
+      
+      if (password !== confirmPassword) {
+        alert('Passwords do not match!');
+        return false;
+      }
+      
+      if (password.length < 6) {
+        alert('Password must be at least 6 characters long!');
+        return false;
+      }
+      
+      return true;
+    }
+
+    // Auto-dismiss messages
+    setTimeout(() => {
+      const messages = document.querySelectorAll('.fixed .max-w-sm');
+      messages.forEach(msg => {
+        msg.style.transform = 'translateX(100%)';
+        setTimeout(() => msg.remove(), 300);
+      });
+    }, 5000);
+  </script>
+
+</body>
+<script type="module" src="{% static 'build/register.js' %}"></script>
+</html>

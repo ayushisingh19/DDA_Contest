@@ -1,0 +1,48 @@
+{
+  "name": "ddt-frontend",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "watch": "vite build --watch",
+    "preview": "vite preview --port 5173",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint . --ext .ts,.tsx --max-warnings=0",
+    "format:check": "prettier --check .",
+    "format:write": "prettier --write .",
+    "copy:html": "node scripts/copy-html.cjs",
+    "build:all": "npm run build && npm run copy:html",
+    "watch:html": "chokidar \"templates/**/*.html\" -c \"node scripts/copy-html.cjs\"",
+    "watch:all": "concurrently \"npm:watch\" \"npm:watch:html\"",
+    "dev:django": "npm run watch:all",
+    "test": "vitest run --silent",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  },
+  "devDependencies": {
+  "@types/node": "20.19.0",
+    "@types/react": "18.2.45",
+    "@types/react-dom": "18.2.18",
+    "@typescript-eslint/eslint-plugin": "7.18.0",
+    "@typescript-eslint/parser": "7.18.0",
+  "@vitejs/plugin-react": "^5.0.0",
+    "chokidar-cli": "^3.0.0",
+    "concurrently": "8.2.2",
+    "eslint": "8.57.0",
+    "eslint-config-prettier": "9.1.0",
+    "eslint-plugin-react-hooks": "4.6.0",
+  "prettier": "3.2.5",
+  "@testing-library/jest-dom": "6.4.6",
+  "@testing-library/react": "14.3.1",
+  "@testing-library/user-event": "14.5.2",
+  "jsdom": "24.1.0",
+  "vitest": "^3.2.4",
+    "typescript": "5.5.4",
+    "vite": "^7.1.5"
+  }
+}

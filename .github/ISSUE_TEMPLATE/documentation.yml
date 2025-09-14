@@ -1,0 +1,115 @@
+name: Documentation Issue
+description: Report an issue with documentation or suggest improvements
+title: "[DOCS] "
+labels: ["documentation", "triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping improve our documentation! Please fill out the form below.
+
+  - type: dropdown
+    id: doc_type
+    attributes:
+      label: Documentation Type
+      description: What type of documentation is this about?
+      options:
+        - README
+        - API Reference
+        - Development Guide
+        - Contributing Guide
+        - Setup Instructions
+        - Code Comments
+        - Architecture Documentation
+        - User Guide
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: issue_type
+    attributes:
+      label: Issue Type
+      description: What type of documentation issue is this?
+      options:
+        - Missing Information
+        - Incorrect Information
+        - Outdated Information
+        - Unclear/Confusing
+        - Broken Links
+        - Formatting Issues
+        - New Documentation Needed
+        - Translation Issue
+    validations:
+      required: true
+
+  - type: input
+    id: location
+    attributes:
+      label: Location
+      description: Where is this documentation located?
+      placeholder: e.g., docs/development-guide.md, line 123; README.md section "Installation"
+    validations:
+      required: true
+
+  - type: textarea
+    id: current_content
+    attributes:
+      label: Current Content
+      description: What does the documentation currently say? (copy/paste the relevant section)
+      placeholder: Paste the current documentation content here...
+
+  - type: textarea
+    id: issue_description
+    attributes:
+      label: Issue Description
+      description: What's wrong with the current documentation?
+      placeholder: Describe what's incorrect, missing, or confusing...
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggested_improvement
+    attributes:
+      label: Suggested Improvement
+      description: How should this be improved?
+      placeholder: |
+        What should the documentation say instead? 
+        Provide specific suggestions for improvement.
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Any additional context that would help us understand the issue
+      placeholder: |
+        - Was this confusing as a new contributor?
+        - Did this prevent you from completing a task?
+        - Are there related documentation issues?
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      description: Would you like to help fix this documentation issue?
+      options:
+        - label: I would like to submit a pull request to fix this
+        - label: I can help review the documentation changes
+        - label: I can provide additional examples or clarifications
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      description: Please confirm the following
+      options:
+        - label: I have checked if this issue already exists
+          required: true
+        - label: I have provided the specific location of the documentation issue
+          required: true
+        - label: I have provided a clear description of the problem and solution
+          required: true

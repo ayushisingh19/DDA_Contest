@@ -1,0 +1,58 @@
+########################################
+# Global Ignores for this Monorepo     #
+########################################
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.env
+.env.*
+.env.local
+.venv/
+venv/
+env/
+env.bak/
+.Python
+
+# Django
+staticfiles/
+media/
+local.sqlite3
+*.sqlite3
+*.sqlite3-journal
+db.sqlite3
+
+# Node / Frontend
+node_modules/
+*.log
+.next/
+build/
+dist/
+.cache/
+coverage/
+frontend/node_modules/
+frontend/dist/
+
+# Generated testcases and Judge0 demo assets
+src/student_auth/media/testcases/
+new app/student_auth/media/testcases/
+src/student_auth/decode_test/judge0/
+src/student_auth/decode_test/.cache/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE/Editor
+.vscode/
+.idea/
+
+# Docker/Caches
+**/.docker-cache/
+**/.pytest_cache/
+**/.mypy_cache/
+
+# Misc large accidental files
+Data Decode.pdf
+zzzzz/

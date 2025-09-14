@@ -1,0 +1,241 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - DDA Contests</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+        background: #0f0f23;
+        color: #ffffff;
+      }
+
+      .glow-btn {
+        background: linear-gradient(135deg, #f59e0b, #f97316);
+        color: #000;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 20px rgba(245, 158, 11, 0.4);
+      }
+
+      .glow-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(245, 158, 11, 0.6);
+      }
+
+      .form-input {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+      }
+
+      .form-input:focus {
+        border-color: #8b5cf6;
+        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .form-input::placeholder {
+        color: rgba(255, 255, 255, 0.4);
+      }
+
+      .auth-tabs {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 4px;
+      }
+
+      .tab-button {
+        transition: all 0.3s ease;
+        border-radius: 8px;
+      }
+
+      .tab-button.active {
+        background: rgba(139, 92, 246, 0.2);
+        color: #a855f7;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-900 min-h-screen flex items-center justify-center p-4">
+    <!-- Background Pattern -->
+    <div class="fixed inset-0 opacity-10">
+      <div
+        class="absolute inset-0"
+        style="
+          background-image: radial-gradient(circle at 25% 25%, #8b5cf6 0%, transparent 50%),
+            radial-gradient(circle at 75% 75%, #06b6d4 0%, transparent 50%);
+        "
+      ></div>
+    </div>
+
+    <div class="relative w-full max-w-md">
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <div class="flex items-center justify-center space-x-3 mb-4">
+          <div
+            class="w-10 h-10 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg flex items-center justify-center"
+          >
+            <i data-lucide="code" class="w-6 h-6 text-white"></i>
+          </div>
+          <div>
+            <h1 class="text-2xl font-bold text-white">DDA Contests</h1>
+            <p class="text-sm text-gray-400">Decode Data Academy</p>
+          </div>
+        </div>
+        <h2 class="text-3xl font-bold text-white mb-2">Welcome Back</h2>
+        <p class="text-gray-400">Sign in to continue your coding journey</p>
+      </div>
+
+      <!-- Auth Form Card -->
+      <div
+        class="bg-gray-800 bg-opacity-50 backdrop-blur-lg rounded-2xl p-8 border border-gray-700 shadow-2xl"
+      >
+        <!-- Tab Navigation -->
+        <div class="auth-tabs mb-8">
+          <div class="grid grid-cols-2 gap-1">
+            <div class="tab-button active px-4 py-3 text-center font-semibold cursor-default">
+              Login
+            </div>
+            <a
+              href="{% url 'register' %}"
+              class="tab-button px-4 py-3 text-center text-gray-400 hover:text-white transition-colors"
+            >
+              Sign Up
+            </a>
+          </div>
+        </div>
+
+        <!-- Login Form -->
+        <form method="POST" class="space-y-6">
+          {% csrf_token %}
+
+          <!-- Email -->
+          <div>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <i data-lucide="mail" class="w-5 h-5 text-gray-400"></i>
+              </div>
+              <input
+                type="email"
+                name="email"
+                placeholder="your@email.com"
+                required
+                class="form-input w-full pl-12 pr-4 py-4 rounded-lg text-white focus:outline-none"
+              />
+            </div>
+          </div>
+
+          <!-- Password -->
+          <div>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <i data-lucide="lock" class="w-5 h-5 text-gray-400"></i>
+              </div>
+              <input
+                type="password"
+                name="password"
+                placeholder="Enter your password"
+                required
+                class="form-input w-full pl-12 pr-4 py-4 rounded-lg text-white focus:outline-none"
+              />
+            </div>
+          </div>
+
+          <!-- Remember Me & Forgot Password -->
+          <div class="flex items-center justify-between text-sm">
+            <label class="flex items-center space-x-2 text-gray-400">
+              <input
+                type="checkbox"
+                class="w-4 h-4 text-purple-600 bg-gray-700 border-gray-600 rounded focus:ring-purple-500"
+              />
+              <span>Remember me</span>
+            </label>
+            <a href="#" class="text-purple-400 hover:text-purple-300">Forgot password?</a>
+          </div>
+
+          <!-- Submit Button -->
+          <button
+            type="submit"
+            class="glow-btn w-full py-4 rounded-lg text-lg font-semibold flex items-center justify-center space-x-2"
+          >
+            <span>Sign In</span>
+            <i data-lucide="arrow-right" class="w-5 h-5"></i>
+          </button>
+        </form>
+
+        <!-- Register Link -->
+        <div class="mt-8 text-center">
+          <p class="text-gray-400">
+            Don't have an account?
+            <a
+              href="{% url 'register' %}"
+              class="text-purple-400 hover:text-purple-300 font-semibold"
+            >
+              Sign up here
+            </a>
+          </p>
+        </div>
+      </div>
+
+      <!-- Back to Home -->
+      <div class="text-center mt-6">
+        <a
+          href="{% url 'home' %}"
+          class="inline-flex items-center space-x-2 text-gray-400 hover:text-white transition-colors"
+        >
+          <i data-lucide="arrow-left" class="w-4 h-4"></i>
+          <span>Back to Home</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Display Messages -->
+    {% if messages %}
+    <div class="fixed top-4 right-4 z-50 space-y-3">
+      {% for message in messages %}
+      <div
+        class="max-w-sm bg-white border-l-4 rounded-lg shadow-lg {% if message.tags == 'error' %}border-red-500{% elif message.tags == 'success' %}border-green-500{% else %}border-blue-500{% endif %}"
+      >
+        <div class="flex items-start p-4">
+          <div class="flex-shrink-0 mr-3">
+            {% if message.tags == 'error' %}
+            <i data-lucide="x-circle" class="w-5 h-5 text-red-600"></i>
+            {% elif message.tags == 'success' %}
+            <i data-lucide="check-circle" class="w-5 h-5 text-green-600"></i>
+            {% else %}
+            <i data-lucide="info" class="w-5 h-5 text-blue-600"></i>
+            {% endif %}
+          </div>
+          <div class="flex-1">
+            <p class="text-sm text-gray-900">{{ message }}</p>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <script>
+      lucide.createIcons()
+
+      // Auto-dismiss messages
+      setTimeout(() => {
+        const messages = document.querySelectorAll('.fixed .max-w-sm')
+        messages.forEach((msg) => {
+          msg.style.transform = 'translateX(100%)'
+          setTimeout(() => msg.remove(), 300)
+        })
+      }, 5000)
+    </script>
+  </body>
+  <script type="module" src="{% static 'build/login.js' %}"></script>
+</html>

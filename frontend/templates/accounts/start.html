@@ -1,0 +1,1243 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Sage Coding Competition - DDA Contests - Updated</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Inter', sans-serif;
+        background: #0f0f23;
+        color: #e2e8f0;
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      /* Header Styling */
+      .header {
+        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        border-bottom: 1px solid #374151;
+        padding: 12px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      }
+
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .logo {
+        width: 32px;
+        height: 32px;
+        background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .header-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #f8fafc;
+      }
+
+      .header-subtitle {
+        font-size: 12px;
+        color: #94a3b8;
+      }
+
+      .header-right {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .timer {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 600;
+        color: #f87171;
+      }
+
+      /* Main Layout */
+      .main-container {
+        display: grid;
+        grid-template-columns: 320px 1fr 1fr;
+        height: calc(100vh - 65px);
+        transition: all 0.3s ease;
+      }
+
+      /* Problems Sidebar */
+      .problems-sidebar {
+        background: #1e293b;
+        border-right: 1px solid #374151;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .problems-header {
+        padding: 20px;
+        border-bottom: 1px solid #374151;
+        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+      }
+
+      .problems-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #f8fafc;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .problems-list {
+        padding: 16px;
+        flex: 1;
+      }
+
+      .problem-card {
+        background: rgba(51, 65, 85, 0.5);
+        border: 1px solid rgba(71, 85, 105, 0.5);
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 12px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .problem-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(180deg, #8b5cf6, #3b82f6);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .problem-card:hover {
+        background: rgba(51, 65, 85, 0.8);
+        border-color: rgba(139, 92, 246, 0.5);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(139, 92, 246, 0.15);
+      }
+
+      .problem-card:hover::before {
+        opacity: 1;
+      }
+
+      .problem-number {
+        font-size: 12px;
+        color: #94a3b8;
+        font-weight: 500;
+      }
+
+      .problem-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #f8fafc;
+        margin: 4px 0 8px 0;
+        line-height: 1.4;
+      }
+
+      .problem-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 12px;
+      }
+
+      .difficulty {
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+
+      .difficulty-easy {
+        background: rgba(34, 197, 94, 0.2);
+        color: #22c55e;
+      }
+      .difficulty-medium {
+        background: rgba(251, 191, 36, 0.2);
+        color: #fbbf24;
+      }
+      .difficulty-hard {
+        background: rgba(239, 68, 68, 0.2);
+        color: #ef4444;
+      }
+
+      .solve-btn {
+        background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+        color: white;
+        padding: 6px 12px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 11px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .solve-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+      }
+
+      .solved-btn {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        pointer-events: none;
+        opacity: 0.9;
+      }
+
+      /* Problem Detail Section */
+      .problem-detail {
+        background: #0f172a;
+        padding: 24px;
+        overflow-y: auto;
+        border-right: 1px solid #374151;
+      }
+
+      .problem-detail h2 {
+        font-size: 24px;
+        font-weight: 700;
+        color: #f8fafc;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .problem-badge {
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .problem-detail h3 {
+        font-size: 16px;
+        font-weight: 600;
+        color: #e2e8f0;
+        margin: 24px 0 12px 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .problem-detail p {
+        line-height: 1.6;
+        color: #cbd5e1;
+        margin-bottom: 16px;
+      }
+
+      .test-cases {
+        background: rgba(30, 41, 59, 0.5);
+        border: 1px solid rgba(71, 85, 105, 0.5);
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 20px;
+      }
+
+      .test-case {
+        background: rgba(15, 23, 42, 0.8);
+        border: 1px solid rgba(51, 65, 85, 0.5);
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 16px;
+        font-family: 'JetBrains Mono', monospace;
+      }
+
+      .test-case-title {
+        color: #8b5cf6;
+        font-weight: 600;
+        margin-bottom: 12px;
+        font-size: 14px;
+      }
+
+      .test-case-section {
+        margin-bottom: 12px;
+      }
+
+      .test-case-label {
+        color: #94a3b8;
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 4px;
+        text-transform: uppercase;
+      }
+
+      .test-case-content {
+        background: rgba(15, 23, 42, 1);
+        border: 1px solid rgba(71, 85, 105, 0.3);
+        border-radius: 6px;
+        padding: 12px;
+        color: #e2e8f0;
+        font-size: 13px;
+        white-space: pre-wrap;
+        overflow-x: auto;
+      }
+
+      /* Editor Section */
+      .editor-section {
+        background: #1e293b;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+      }
+
+      .editor-header {
+        background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+        padding: 12px 20px;
+        border-bottom: 1px solid #4b5563;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .editor-controls {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .language-select {
+        background: rgba(30, 41, 59, 0.8);
+        border: 1px solid rgba(71, 85, 105, 0.5);
+        color: #e2e8f0;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .language-select:focus {
+        outline: none;
+        border-color: #8b5cf6;
+        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+      }
+
+      .action-btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .run-btn {
+        background: linear-gradient(135deg, #059669, #10b981);
+        color: white;
+      }
+
+      .run-btn:hover {
+        background: linear-gradient(135deg, #047857, #059669);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+      }
+
+      .submit-btn {
+        background: linear-gradient(135deg, #dc2626, #ef4444);
+        color: white;
+      }
+
+      .submit-btn:hover {
+        background: linear-gradient(135deg, #b91c1c, #dc2626);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+      }
+
+      .fullscreen-btn {
+        background: rgba(71, 85, 105, 0.5);
+        color: #e2e8f0;
+        border: 1px solid rgba(71, 85, 105, 0.5);
+      }
+
+      .fullscreen-btn:hover {
+        background: rgba(71, 85, 105, 0.8);
+        border-color: #8b5cf6;
+      }
+
+      .code-editor {
+        flex: 1;
+        background: #0f172a;
+        color: #e2e8f0;
+        border: none;
+        padding: 20px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 14px;
+        line-height: 1.6;
+        resize: none;
+        outline: none;
+        tab-size: 2;
+      }
+
+      .code-editor::placeholder {
+        color: #64748b;
+        font-style: italic;
+      }
+
+      .console-section {
+        height: 350px;
+        background: #111827;
+        border-top: 1px solid #374151;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .console-header {
+        background: #1f2937;
+        padding: 12px 20px;
+        border-bottom: 1px solid #374151;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .console-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #e2e8f0;
+      }
+
+      .console-output {
+        flex: 1;
+        padding: 16px 20px;
+        overflow-y: auto;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 13px;
+        line-height: 1.5;
+        color: #cbd5e1;
+        white-space: pre-wrap;
+        background: #0f172a;
+      }
+
+      /* Fullscreen mode */
+      .fullscreen {
+        position: fixed !important;
+        top: 0;
+        left: 0;
+        width: 100% !important;
+        height: 100% !important;
+        z-index: 1000;
+        grid-template-columns: 1fr !important;
+      }
+
+      .fullscreen .problems-sidebar,
+      .fullscreen .problem-detail {
+        display: none !important;
+      }
+
+      /* Scrollbar Styling */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: rgba(71, 85, 105, 0.1);
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: rgba(139, 92, 246, 0.3);
+        border-radius: 4px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgba(139, 92, 246, 0.5);
+      }
+
+      /* Empty state */
+      .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: #64748b;
+        text-align: center;
+      }
+
+      .empty-state-icon {
+        width: 64px;
+        height: 64px;
+        margin-bottom: 16px;
+        opacity: 0.5;
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 1024px) {
+        .main-container {
+          grid-template-columns: 280px 1fr 1fr;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .main-container {
+          grid-template-columns: 1fr;
+        }
+
+        .problems-sidebar {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    {% csrf_token %}
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <div class="logo">
+          <i data-lucide="code" class="text-white w-5 h-5"></i>
+        </div>
+        <div>
+          <div class="header-title">Sage Coding Competition</div>
+          <div class="header-subtitle">Decode Data Academy</div>
+        </div>
+      </div>
+      <div class="header-right">
+  <button
+              id="submitBtn"
+    class="action-btn submit-btn"
+    type="button"
+              onclick="console.log('Submit button clicked via onclick')"
+            >
+              <i data-lucide="send" class="w-4 h-4"></i>
+              Submit
+            </button>
+        <a href="{% url 'home' %}" class="text-gray-300 hover:text-white transition-colors">
+          <i data-lucide="home" class="w-5 h-5"></i>
+        </a>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container" id="mainLayout">
+      <!-- Problems Sidebar -->
+      <section class="problems-sidebar">
+        <div class="problems-header">
+          <div class="problems-title">
+            <i data-lucide="list" class="w-5 h-5 text-purple-400"></i>
+            Problems
+          </div>
+        </div>
+        <div class="problems-list">
+          {% for p in problems %}
+          <div
+            class="problem-card"
+            onclick="window.location.href='{% url 'problem_detail' p.id %}'"
+          >
+            <div class="problem-number">Problem {{ forloop.counter }}</div>
+            <div class="problem-title">{{ p.title }}</div>
+            <div class="problem-meta">
+              <span class="difficulty difficulty-{{ p.difficulty|lower }}">{{ p.difficulty }}</span>
+              {% if p.is_solved %}
+              <span class="solve-btn solved-btn">
+                <i data-lucide="check" class="w-3 h-3"></i>
+                Solved
+              </span>
+              {% else %}
+              <a
+                href="{% url 'problem_detail' p.id %}"
+                class="solve-btn"
+                onclick="event.stopPropagation()"
+              >
+                <i data-lucide="play" class="w-3 h-3"></i>
+                Solve
+              </a>
+              {% endif %}
+            </div>
+          </div>
+          {% empty %}
+          <div class="empty-state">
+            <i data-lucide="inbox" class="empty-state-icon"></i>
+            <p>No problems available.</p>
+          </div>
+          {% endfor %}
+        </div>
+      </section>
+
+      <!-- Problem Detail Section -->
+      <section class="problem-detail">
+        {% if problem %}
+        <h2>
+          <i data-lucide="file-text" class="w-6 h-6 text-purple-400"></i>
+          {{ problem.title }}
+          <span class="problem-badge difficulty-{{ problem.difficulty|lower }}"
+            >{{ problem.difficulty }}</span
+          >
+        </h2>
+
+        <h3>
+          <i data-lucide="info" class="w-4 h-4 text-blue-400"></i>
+          Description
+        </h3>
+        <p>{{ problem.description|linebreaksbr }}</p>
+
+        <h3>
+          <i data-lucide="alert-triangle" class="w-4 h-4 text-yellow-400"></i>
+          Constraints
+        </h3>
+        <p>{{ problem.constraints|linebreaksbr }}</p>
+
+        <h3>
+          <i data-lucide="test-tube" class="w-4 h-4 text-green-400"></i>
+          Sample Test Cases
+        </h3>
+        <div class="test-cases">
+          {% if visible_testcases %} {% for tc in visible_testcases %}
+          <div class="test-case">
+            <div class="test-case-title">Test Case #{{ tc.test_case_no }}</div>
+            <div class="test-case-section">
+              <div class="test-case-label">Input:</div>
+              <div class="test-case-content">{{ tc.stdin }}</div>
+            </div>
+            <div class="test-case-section">
+              <div class="test-case-label">Expected Output:</div>
+              <div class="test-case-content">{{ tc.expected_output }}</div>
+            </div>
+          </div>
+          {% endfor %} {% else %}
+          <div class="empty-state">
+            <i data-lucide="eye-off" class="empty-state-icon"></i>
+            <p>No public test cases available.</p>
+          </div>
+          {% endif %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+          <i data-lucide="arrow-left" class="empty-state-icon"></i>
+          <h3>Select a problem to get started</h3>
+          <p>Choose a problem from the sidebar to view its details and start coding.</p>
+        </div>
+        {% endif %}
+      </section>
+
+      <!-- Editor Section -->
+      <section class="editor-section" id="editorSection">
+        <div class="editor-header">
+          <div class="editor-controls">
+            <select id="lang" class="language-select">
+              <option value="python">python</option>
+              <option value="cpp">cpp</option>
+            </select>
+            <button
+              id="runBtn"
+              class="action-btn run-btn"
+              type="button"
+              onclick="console.log('Run button clicked via onclick')"
+            >
+              <i data-lucide="play" class="w-4 h-4"></i>
+              Run Code
+            </button>
+           
+          </div>
+          <button id="toggleFullscreen" class="action-btn fullscreen-btn">
+            <i data-lucide="maximize" class="w-4 h-4"></i>
+            Fullscreen
+          </button>
+        </div>
+
+        <textarea
+          class="code-editor"
+          id="editor"
+          placeholder="# Write your solution here..."
+        ></textarea>
+
+        {% if problem %}
+        <div class="console-section">
+          <div class="console-header">
+            <i data-lucide="terminal" class="w-4 h-4 text-green-400"></i>
+            <span class="console-title">Output Console</span>
+          </div>
+          <div class="console-output" id="console">Ready to run your code...</div>
+        </div>
+        {% endif %}
+      </section>
+    </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM Content Loaded - Script is running');
+
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+  const runBtn = document.getElementById('runBtn');
+  const submitBtn = document.getElementById('submitBtn');
+  const codeEditor = document.getElementById('editor');
+  const consoleOutput = document.getElementById('console');
+        const languageSelect = document.getElementById('lang');
+        const editorSection = document.getElementById('editorSection');
+        const toggleBtn = document.getElementById('toggleFullscreen');
+
+        // Debug: Check if elements are found
+        console.log('Elements found:', {
+          runBtn: !!runBtn,
+          submitBtn: !!submitBtn,
+          codeEditor: !!codeEditor,
+          consoleOutput: !!consoleOutput,
+          languageSelect: !!languageSelect,
+          editorSection: !!editorSection,
+          toggleBtn: !!toggleBtn
+        });
+
+      {% if problem %}
+        const runCodeUrl = "{% url 'run_code' problem.id %}";
+        const problemId = {{ problem.id }};
+      {% else %}
+        const runCodeUrl = null;
+        const problemId = null;
+      {% endif %}
+
+      // --- CSRF + Draft persistence helpers (per problem + language) ---
+      function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return null;
+      }
+
+      function draftKey(pid, lang) {
+        return `dda:draft:problem:${pid}:lang:${lang}`;
+      }
+
+      async function loadDraftOrStarter(pid, lang) {
+        const key = draftKey(pid, lang);
+        const saved = localStorage.getItem(key);
+        if (saved && saved.length > 0 && codeEditor) {
+          codeEditor.value = saved;
+        }
+        if (codeEditor) autoResize();
+      }
+
+      let saveTimer = null;
+      function queueSaveDraft() {
+        if (!problemId) return;
+        const lang = languageSelect ? languageSelect.value : 'python';
+        const key = draftKey(problemId, lang);
+        if (saveTimer) clearTimeout(saveTimer);
+        saveTimer = setTimeout(() => {
+          try {
+            if (codeEditor) localStorage.setItem(key, codeEditor.value);
+          } catch (_) {}
+        }, 300);
+      }
+
+      // Language change handler: persist current draft, then load draft/starter for new language
+      if (languageSelect) {
+        languageSelect.addEventListener('change', async function() {
+          const prevLang = this.getAttribute('data-prev') || this.value;
+          const newLang = this.value;
+          if (problemId) {
+            try { if (codeEditor) localStorage.setItem(draftKey(problemId, prevLang), codeEditor.value); } catch (_) {}
+            if (codeEditor) codeEditor.value = '';
+            await loadDraftOrStarter(problemId, newLang);
+          }
+          this.setAttribute('data-prev', newLang);
+          console.log('Language changed to:', newLang);
+        });
+      }
+
+      async function executeCode(actionType) {
+        console.log('executeCode called with:', actionType);
+
+        if (!runCodeUrl) {
+          console.log('No runCodeUrl available');
+          showConsoleMessage('Please select a problem first to run your code.', 'warning');
+          return;
+        }
+
+        if (!codeEditor) {
+          showConsoleMessage('Editor not found on page.', 'error');
+          return;
+        }
+        const code = codeEditor.value.trim();
+        const language = languageSelect ? languageSelect.value : 'python';
+        // Persist draft before sending
+        if (problemId) {
+          try { localStorage.setItem(draftKey(problemId, language), codeEditor.value); } catch (_) {}
+        }
+
+        console.log('Code length:', code.length);
+        console.log('Language:', language);
+
+        if (!code) {
+          showConsoleMessage('Please write some code before running.', 'warning');
+          return;
+        }
+
+        // Show loading state
+        const loadingMessage = actionType === "run" ? 'Running your code...' : 'Submitting your solution...';
+        showConsoleMessage(loadingMessage, 'loading');
+
+        // Disable buttons during execution
+        if (runBtn) {
+          runBtn.disabled = true;
+          runBtn.style.opacity = '0.5';
+        }
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.style.opacity = '0.5';
+        }
+
+        try {
+          // Get CSRF token from the page
+          const csrfToken = (
+            document.querySelector('[name=csrfmiddlewaretoken]')?.value || getCookie('csrftoken') || ''
+          );
+
+          console.log('Making request to:', runCodeUrl);
+          console.log('CSRF Token:', csrfToken ? 'Present' : 'Missing');
+
+          const response = await fetch(runCodeUrl, {
+            method: "POST",
+            headers: {
+              'X-CSRFToken': csrfToken,
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({
+              code: code,
+              language: language,
+              action: actionType
+            })
+          });
+
+          console.log('Response status:', response.status);
+          console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error('HTTP Error:', response.status, response.statusText, errorText);
+            showConsoleMessage(`Server error (${response.status}): ${response.statusText}`, 'error');
+            return;
+          }
+
+          const data = await response.json();
+          console.log('Response data:', data);
+
+          // Handle submission errors from backend
+          if (data.error) {
+            let errorMessage = data.error;
+            if (data.error_details) {
+              errorMessage += `\n\nDetails: ${data.error_details}`;
+            }
+            console.error('Backend error:', errorMessage);
+            showConsoleMessage(errorMessage, 'error');
+            return;
+          }
+
+          // If we got a submission_id, poll for results
+          if (data.submission_id) {
+            console.log('Got submission ID:', data.submission_id);
+            showConsoleMessage('Code submitted for evaluation... ⏳', 'loading');
+            await pollSubmissionResults(data.submission_id, actionType);
+            return;
+          }
+
+          // Legacy fallback: direct results (shouldn't happen with new backend)
+          if (!data.results || data.results.length === 0) {
+            console.warn('No results in direct response');
+            showConsoleMessage('No test cases available for this problem.', 'warning');
+            return;
+          }
+
+          console.log('Displaying direct results');
+          displayResults(data.results, actionType);
+
+          // Check if problem was solved
+          if (data.solved && actionType === "submit") {
+            showSecurityAlert(
+              'warning',
+              'Problem Solved!',
+              'Congratulations! You have successfully solved this problem. The page will refresh to update the status.',
+              5000
+            );
+
+            setTimeout(() => {
+              window.location.reload();
+            }, 3000);
+          }
+
+        } catch (error) {
+          console.error('Execution error:', error);
+          console.error('Error stack:', error.stack);
+          showConsoleMessage(`Network error: ${error.message}. Please check your connection and try again.`, 'error');
+        } finally {
+          // Re-enable buttons
+          if (runBtn) { runBtn.disabled = false; runBtn.style.opacity = '1'; }
+          if (submitBtn) { submitBtn.disabled = false; submitBtn.style.opacity = '1'; }
+        }
+      }
+
+      function showConsoleMessage(message, type = 'info') {
+        const colors = {
+          loading: '#3b82f6',
+          warning: '#f59e0b',
+          error: '#ef4444',
+          success: '#10b981',
+          info: '#6b7280'
+        };
+
+        if (!consoleOutput) {
+          const titleMap = {
+            loading: 'Working...',
+            warning: 'Heads up',
+            error: 'Error',
+            success: 'Success',
+            info: 'Info'
+          };
+          try {
+            showSecurityAlert(type, titleMap[type] || 'Info', message, 3000);
+          } catch (_) {
+            // Last resort
+            console.log(`[${type}]`, message);
+          }
+          return;
+        }
+
+        consoleOutput.innerHTML = `<div style="color: ${colors[type]}; font-weight: 600;">${message}</div>`;
+      }
+
+      function showSecurityAlert(type, title, message, duration = 3000) {
+        // Create alert element
+        const alert = document.createElement('div');
+        alert.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background: linear-gradient(135deg, #10b981, #059669);
+          color: white;
+          padding: 16px 20px;
+          border-radius: 8px;
+          box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+          z-index: 10000;
+          max-width: 400px;
+          font-family: 'Inter', sans-serif;
+          animation: slideIn 0.3s ease-out;
+        `;
+
+        alert.innerHTML = `
+          <div style="font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+            <i data-lucide="check-circle" style="width: 20px; height: 20px;"></i>
+            ${title}
+          </div>
+          <div style="font-size: 14px; opacity: 0.9;">${message}</div>
+        `;
+
+        // Add to document
+        document.body.appendChild(alert);
+
+        // Initialize icon
+        lucide.createIcons();
+
+        // Remove after duration
+        setTimeout(() => {
+          alert.style.animation = 'slideOut 0.3s ease-in';
+          setTimeout(() => {
+            if (alert.parentNode) {
+              alert.parentNode.removeChild(alert);
+            }
+          }, 300);
+        }, duration);
+      }
+
+      // Add CSS animations for alerts
+      if (!document.getElementById('alertStyles')) {
+        const style = document.createElement('style');
+        style.id = 'alertStyles';
+        style.textContent = `
+          @keyframes slideIn {
+            from {
+              transform: translateX(100%);
+              opacity: 0;
+            }
+            to {
+              transform: translateX(0);
+              opacity: 1;
+            }
+          }
+          @keyframes slideOut {
+            from {
+              transform: translateX(0);
+              opacity: 1;
+            }
+            to {
+              transform: translateX(100%);
+              opacity: 0;
+            }
+          }
+        `;
+        document.head.appendChild(style);
+      }
+
+      async function pollSubmissionResults(submissionId, actionType) {
+        console.log('Starting to poll submission:', submissionId);
+        const maxAttempts = 30; // Poll for up to 30 seconds
+        let attempts = 0;
+
+        while (attempts < maxAttempts) {
+          try {
+            console.log(`Polling attempt ${attempts + 1}/${maxAttempts} for submission ${submissionId}`);
+            const response = await fetch(`/api/submissions/${submissionId}/`);
+
+            if (!response.ok) {
+              console.error('Polling response not ok:', response.status, response.statusText);
+              showConsoleMessage(`Server error (${response.status}): ${response.statusText}`, 'error');
+              return;
+            }
+
+            const data = await response.json();
+            console.log('Polling response:', data);
+
+            if (data.status === 'DONE') {
+              console.log('Submission completed successfully');
+
+              if (data.error) {
+                console.error('Submission completed with error:', data.error);
+                showConsoleMessage(`Error: ${data.error}`, 'error');
+                return;
+              }
+
+              if (!data.results || data.results.length === 0) {
+                console.warn('No results returned from submission');
+                showConsoleMessage('No test cases available for this problem.', 'warning');
+                return;
+              }
+
+              console.log('Displaying results:', data.results);
+              displayResults(data.results, actionType);
+
+              // Check if problem was solved
+              if (data.solved && actionType === "submit") {
+                console.log('Problem solved!');
+                showSecurityAlert(
+                  'warning',
+                  'Problem Solved!',
+                  'Congratulations! You have successfully solved this problem. The page will refresh to update the status.',
+                  5000
+                );
+
+                setTimeout(() => {
+                  window.location.reload();
+                }, 3000);
+              }
+              return;
+            } else if (data.status === 'ERROR') {
+              console.error('Submission failed with error status:', data);
+              const errorMsg = data.error || 'An error occurred during evaluation';
+              if (data.error_details) {
+                console.error('Error details:', data.error_details);
+              }
+              showConsoleMessage(`Error: ${errorMsg}${data.error_details ? '\n\nDetails: ' + data.error_details : ''}`, 'error');
+              return;
+            } else {
+              // Still processing (QUEUED or RUNNING)
+              console.log(`Submission status: ${data.status}, continuing to poll...`);
+              const dots = '.'.repeat((attempts % 3) + 1);
+              showConsoleMessage(`Evaluating your code${dots} (${attempts + 1}s)`, 'loading');
+            }
+          } catch (error) {
+            console.error('Polling error:', error);
+            showConsoleMessage('Error checking submission status. Please try again.', 'error');
+            return;
+          }
+
+          attempts++;
+          await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
+        }
+
+        // Timeout
+        console.warn('Polling timed out after', maxAttempts, 'attempts');
+        showConsoleMessage('Evaluation timed out. Please try again.', 'warning');
+      }
+
+      function displayResults(results, actionType) {
+        console.log('Displaying results:', results);
+
+        let output = `<div style="color: #8b5cf6; font-weight: 600; margin-bottom: 16px;">
+          ${actionType === 'run' ? 'Test Results' : 'Submission Results'}
+        </div>`;
+
+        let passedTests = 0;
+        const totalTests = results.length;
+
+        results.forEach((res, i) => {
+          // Handle both field naming conventions from backend
+          const expectedOutput = res.expected || res.expected_output || '';
+          const actualOutput = res.output || '';
+
+          // Use backend's passed field if available, otherwise compare outputs
+          const isCorrect = res.passed !== undefined ? res.passed : (actualOutput.trim() === expectedOutput.trim());
+          if (isCorrect) passedTests++;
+
+          const statusColor = isCorrect ? '#10b981' : '#ef4444';
+          const statusIcon = isCorrect ? 'PASS' : 'FAIL';
+
+          // Create input display - handle both test case formats
+          let inputDisplay = '(no input required)';
+          if (res.input) {
+            inputDisplay = res.input;
+          } else if (res.stdin) {
+            inputDisplay = res.stdin;
+          } else if (res.test_input) {
+            inputDisplay = res.test_input;
+          }
+
+          // For display purposes, if we have backend test case data, use it
+          if (!inputDisplay || inputDisplay === '(no input required)') {
+            // This might be a case where we need to look at the test case metadata
+            inputDisplay = '(check console for input data)';
+          }
+
+          output += `
+            <div style="background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(71, 85, 105, 0.5); border-radius: 8px; padding: 16px; margin-bottom: 12px;">
+              <div style="color: ${statusColor}; font-weight: 600; margin-bottom: 8px;">
+                ${statusIcon} Test Case #${i + 1}
+              </div>
+
+              <div style="margin-bottom: 8px;">
+                <div style="color: #94a3b8; font-size: 12px; text-transform: uppercase; margin-bottom: 4px;">Input:</div>
+                <div style="background: rgba(15, 23, 42, 1); padding: 8px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; white-space: pre-wrap;">${inputDisplay}</div>
+              </div>
+
+              <div style="margin-bottom: 8px;">
+                <div style="color: #94a3b8; font-size: 12px; text-transform: uppercase; margin-bottom: 4px;">Expected:</div>
+                <div style="background: rgba(15, 23, 42, 1); padding: 8px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; white-space: pre-wrap;">${expectedOutput}</div>
+              </div>
+
+              <div>
+                <div style="color: #94a3b8; font-size: 12px; text-transform: uppercase; margin-bottom: 4px;">Your Output:</div>
+                <div style="background: rgba(15, 23, 42, 1); padding: 8px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; color: ${statusColor}; white-space: pre-wrap;">${actualOutput || 'No output'}</div>
+              </div>
+
+              ${res.status ? `<div style="margin-top: 8px; color: #94a3b8; font-size: 12px;">Status: ${res.status}</div>` : ''}
+              ${res.time_ms ? `<div style="color: #94a3b8; font-size: 12px;">Time: ${res.time_ms}ms</div>` : ''}
+              ${res.memory_kb ? `<div style="color: #94a3b8; font-size: 12px;">Memory: ${res.memory_kb}KB</div>` : ''}
+            </div>
+          `;
+        });
+
+        // Add summary
+        const summaryColor = passedTests === totalTests ? '#10b981' : passedTests > 0 ? '#f59e0b' : '#ef4444';
+        const summaryIcon = passedTests === totalTests ? 'SUCCESS' : passedTests > 0 ? 'PARTIAL' : 'FAILED';
+
+        output += `
+          <div style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.1)); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 8px; padding: 16px; margin-top: 16px;">
+            <div style="color: ${summaryColor}; font-weight: 600; font-size: 16px;">
+              ${summaryIcon} Summary: ${passedTests}/${totalTests} test cases passed
+            </div>
+          </div>
+        `;
+
+        consoleOutput.innerHTML = output;
+      }
+
+      // Event listeners
+      console.log('Adding event listeners to buttons');
+
+      if (runBtn) {
+        runBtn.addEventListener('click', function() {
+          console.log('Run button clicked via addEventListener');
+          executeCode("run");
+        });
+      }
+
+      if (submitBtn) {
+        submitBtn.addEventListener('click', function() {
+          console.log('Submit button clicked via addEventListener');
+          executeCode("submit");
+        });
+      }
+
+      if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+          editorSection.classList.toggle('fullscreen');
+          const isFullscreen = editorSection.classList.contains('fullscreen');
+          toggleBtn.innerHTML = isFullscreen
+            ? '<i data-lucide="minimize" class="w-4 h-4"></i> Exit Fullscreen'
+            : '<i data-lucide="maximize" class="w-4 h-4"></i> Fullscreen';
+          lucide.createIcons();
+        });
+      }
+
+      // Auto-resize textarea
+      function autoResize() {
+        codeEditor.style.height = 'auto';
+        codeEditor.style.height = codeEditor.scrollHeight + 'px';
+      }
+
+      // Tab support in textarea
+      if (codeEditor) {
+        codeEditor.addEventListener('keydown', function(e) {
+          if (e.key === 'Tab') {
+            e.preventDefault();
+            const start = this.selectionStart;
+            const end = this.selectionEnd;
+            this.value = this.value.substring(0, start) + '  ' + this.value.substring(end);
+            this.selectionStart = this.selectionEnd = start + 2;
+          }
+        });
+      }
+
+      // Autosave on input
+      if (codeEditor) {
+        codeEditor.addEventListener('input', queueSaveDraft);
+      }
+
+      // Initial load: if a problem is selected, load draft or starter
+      if (problemId && languageSelect) {
+        languageSelect.setAttribute('data-prev', languageSelect.value);
+        loadDraftOrStarter(problemId, languageSelect.value);
+      }
+
+      // Initialize
+      lucide.createIcons();
+      }); // Close DOMContentLoaded
+    </script>
+  </body>
+</html>

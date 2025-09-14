@@ -1,0 +1,1519 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DDA Contests - Decode Data Academy</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0f0f23;
+      color: #ffffff;
+    }
+    
+    .gradient-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .code-editor {
+      background: #1e1e2e;
+      border-radius: 12px;
+      border: 1px solid #313244;
+      font-family: 'Courier New', monospace;
+    }
+    
+    .code-line {
+      display: flex;
+      align-items: center;
+      padding: 4px 0;
+    }
+    
+    .line-number {
+      color: #6c7086;
+      margin-right: 16px;
+      min-width: 20px;
+      text-align: right;
+      font-size: 14px;
+    }
+    
+    .code-content {
+      color: #cdd6f4;
+      font-size: 14px;
+    }
+    
+    .keyword { color: #cba6f7; }
+    .function { color: #89b4fa; }
+    .string { color: #a6e3a1; }
+    .number { color: #fab387; }
+    .comment { color: #6c7086; }
+    
+    .terminal-header {
+      background: #313244;
+      border-radius: 12px 12px 0 0;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .terminal-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    
+    .glow-btn {
+      background: linear-gradient(135deg, #f59e0b, #f97316);
+      color: #000;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 20px rgba(245, 158, 11, 0.4);
+    }
+    
+    .glow-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(245, 158, 11, 0.6);
+    }
+    
+    .stats-card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    /* How It Works Animations */
+    .step-card {
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .step-card:hover {
+      transform: translateY(-10px);
+    }
+    
+    .step-icon {
+      transition: all 0.4s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .step-icon:hover {
+      transform: scale(1.1) rotate(5deg);
+      box-shadow: 0 20px 40px rgba(139, 69, 219, 0.3);
+    }
+    
+    .step-icon::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      transform: rotate(45deg);
+      transition: all 0.6s ease;
+      opacity: 0;
+    }
+    
+    .step-icon:hover::before {
+      opacity: 1;
+      animation: shimmer 0.6s ease-in-out;
+    }
+    
+    @keyframes shimmer {
+      0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+      100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+    }
+    
+    .step-number {
+      animation: bounce 2s infinite;
+      animation-delay: var(--delay);
+    }
+    
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-10px); }
+      60% { transform: translateY(-5px); }
+    }
+    
+    .connecting-line {
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .connecting-line::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(139, 69, 219, 0.6), transparent);
+      animation: flow 3s ease-in-out infinite;
+    }
+    
+    @keyframes flow {
+      0% { left: -100%; }
+      50% { left: 0%; }
+      100% { left: 100%; }
+    }
+    
+    /* Floating animation for icons */
+    .float-animation {
+      animation: float 3s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    /* Pulse animation for step numbers */
+    .pulse-animation {
+      animation: pulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+      50% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+    }
+
+    /* Countdown Timer Styles */
+    .countdown-days, .countdown-hours, .countdown-minutes, .countdown-seconds {
+      transition: transform 0.2s ease;
+      display: inline-block;
+    }
+
+    .countdown-container {
+      animation: glow 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes glow {
+      from { box-shadow: 0 0 20px rgba(139, 69, 219, 0.3); }
+      to { box-shadow: 0 0 30px rgba(139, 69, 219, 0.6); }
+    }
+  </style>
+</head>
+<body class="bg-gray-900">
+
+  <!-- Navbar -->
+  <header class="bg-gray-900 border-b border-gray-800 sticky top-0 z-50">
+    <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+      <a href="#" class="flex items-center space-x-3">
+        <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
+          <i data-lucide="code" class="w-5 h-5 text-white"></i>
+        </div>
+        <div>
+          <div class="text-xl font-bold text-white">DDA Contests</div>
+          <div class="text-xs text-gray-400">Decode Data Academy</div>
+        </div>
+      </a>
+      
+      <div class="hidden md:flex items-center space-x-8 font-medium">
+        <a href="#home" class="text-purple-400 hover:text-purple-300 transition scroll-link">Home</a>
+        <a href="#about" class="text-gray-300 hover:text-white transition scroll-link">About</a>
+        <a href="#contact" class="text-gray-300 hover:text-white transition scroll-link">Contact</a>
+        <a href="{% url 'contest' %}" class="flex items-center space-x-1 text-gray-300 hover:text-white transition">
+          <span>Contests</span>
+         
+        </a>
+      </div>
+      
+      <!-- Login Button -->
+      <div class="flex items-center space-x-4">
+        {% if student %}
+          <span class="text-gray-300">Welcome, {{ student.name }}</span>
+          <a href="{% url 'logout' %}" class="text-red-400 hover:text-red-300">Logout</a>
+        {% else %}
+          <a href="{% url 'login' %}" class="bg-yellow-500 text-black px-6 py-2 rounded-lg font-semibold hover:bg-yellow-400 transition">
+            Login 
+          </a>
+        {% endif %}
+      </div>
+      
+      <button id="mobile-menu-button" class="md:hidden text-white">
+        <i data-lucide="menu"></i>
+      </button>
+    </nav>
+    
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden px-6 pb-4 space-y-2 bg-gray-800">
+      <a href="#home" class="block text-purple-400 hover:text-purple-300 scroll-link">Home</a>
+      <a href="#about" class="block text-gray-300 hover:text-white scroll-link">About</a>
+      <a href="#contact" class="block text-gray-300 hover:text-white scroll-link">Contact</a>
+      <a href="{% url 'contest' %}" class="block text-gray-300 hover:text-white">Contests</a>
+      {% if not student %}
+        <a href="{% url 'login' %}" class="block text-center bg-yellow-500 text-black px-4 py-2 rounded-lg font-semibold">Login</a>
+      {% endif %}
+    </div>
+  </header>
+
+  <!-- Alert Messages -->
+  {% if messages %}
+    <div class="fixed top-4 right-4 left-4 md:left-auto z-50 space-y-3" id="alert-container">
+      {% for message in messages %}
+        <div class="alert-message max-w-md mx-auto md:mx-0 bg-white border-l-4 rounded-lg shadow-lg transform translate-x-full transition-all duration-500 ease-out
+          {% if message.tags == 'error' %}border-red-500{% elif message.tags == 'success' %}border-green-500{% elif message.tags == 'info' %}border-blue-500{% else %}border-yellow-500{% endif %}">
+          <div class="flex items-start p-4">
+            <div class="flex-shrink-0 mr-3">
+              {% if message.tags == 'error' %}
+                <div class="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center">
+                  <i data-lucide="x-circle" class="w-4 h-4 text-red-600"></i>
+                </div>
+              {% elif message.tags == 'success' %}
+                <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
+                  <i data-lucide="check-circle" class="w-4 h-4 text-green-600"></i>
+                </div>
+              {% elif message.tags == 'info' %}
+                <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                  <i data-lucide="info" class="w-4 h-4 text-blue-600"></i>
+                </div>
+              {% else %}
+                <div class="w-6 h-6 bg-yellow-100 rounded-full flex items-center justify-center">
+                  <i data-lucide="alert-triangle" class="w-4 h-4 text-yellow-600"></i>
+                </div>
+              {% endif %}
+            </div>
+            <div class="flex-1">
+              <p class="text-sm font-medium text-gray-900 mb-1">
+                {% if message.tags == 'error' %}Authentication Required
+                {% elif message.tags == 'success' %}Success!
+                {% elif message.tags == 'info' %}Please Register or Login
+                {% else %}Notice
+                {% endif %}
+              </p>
+              <p class="text-sm text-gray-600">{{ message }}</p>
+              {% if message.tags == 'info' %}
+                <div class="mt-3 flex space-x-2">
+                  <a href="{% url 'register' %}" class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-white bg-purple-600 rounded-md hover:bg-purple-700 transition-colors">
+                    <i data-lucide="user-plus" class="w-3 h-3 mr-1"></i>
+                    Register
+                  </a>
+                  <a href="{% url 'login' %}" class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-purple-600 bg-purple-100 rounded-md hover:bg-purple-200 transition-colors">
+                    <i data-lucide="log-in" class="w-3 h-3 mr-1"></i>
+                    Login
+                  </a>
+                </div>
+              {% endif %}
+            </div>
+            <button class="flex-shrink-0 ml-2 text-gray-400 hover:text-gray-600 transition-colors" onclick="closeAlert(this)">
+              <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- Hero Section -->
+  <section id="home" class="relative overflow-hidden">
+    <div class="container mx-auto px-6 pt-8 pb-20">
+      <div class="grid lg:grid-cols-2 gap-12 items-center">
+        
+        <!-- Left Content -->
+        <div class="text-center lg:text-left">
+          <div class="mb-6">
+
+            <h4 class="text-purple-400 font-medium mb-2">🏆 Coding Competitions Platform</h4>
+          </div>
+          
+          <h1 class="text-5xl md:text-6xl font-extrabold mb-6 leading-tight">
+            Unleash Your
+            <span class="block bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+              Coding Skills
+            </span>
+          </h1>
+          
+          <p class="text-xl text-gray-300 mb-8 max-w-lg">
+            Join our campus and online coding contests by Decode Data Academy. 
+            Compete, learn, and climb the leaderboards with fellow programmers.
+          </p>
+          
+          <div class="flex flex-col sm:flex-row gap-4 mb-12">
+            <a href="{% url 'register' %}" class="glow-btn px-8 py-4 rounded-lg text-lg inline-flex items-center justify-center space-x-2">
+              <span>Get Started</span>
+              <i data-lucide="arrow-right" class="w-5 h-5"></i>
+            </a>
+            <a href="{% url 'contest' %}" class="border border-gray-600 text-gray-300 px-8 py-4 rounded-lg text-lg hover:bg-gray-800 transition inline-flex items-center justify-center space-x-2">
+              <span>View Contests</span>
+            </a>
+          </div>
+          
+          <!-- Stats -->
+          <div class="grid grid-cols-3 gap-6">
+            <div class="stats-card p-4 rounded-lg text-center">
+              <div class="text-2xl font-bold text-white">500+</div>
+              <div class="text-sm text-gray-400">Active Users</div>
+            </div>
+            <div class="stats-card p-4 rounded-lg text-center">
+              <div class="text-2xl font-bold text-white">50+</div>
+              <div class="text-sm text-gray-400">Contests Hosted</div>
+            </div>
+            <div class="stats-card p-4 rounded-lg text-center">
+              <div class="text-2xl font-bold text-white">25+</div>
+              <div class="text-sm text-gray-400">Partner Colleges</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Right Content - Code Editor Mockup -->
+        <div class="lg:pl-8">
+          <!-- Purple Container Background -->
+          <div class="bg-gradient-to-br from-purple-800 to-purple-900 p-8 rounded-3xl relative">
+            <div class="code-editor relative">
+              <!-- Terminal Header -->
+              <div class="terminal-header">
+                <div class="terminal-dot bg-red-500"></div>
+                <div class="terminal-dot bg-yellow-500"></div>
+                <div class="terminal-dot bg-green-500"></div>
+                <span class="text-gray-400 text-sm ml-4">contest-solution.py</span>
+              </div>
+              
+              <!-- Code Content -->
+              <div class="p-6 space-y-1">
+                <div class="code-line">
+                  <span class="line-number">1</span>
+                  <span class="code-content"><span class="comment"># Solving today's contest problem</span></span>
+                </div>
+                <div class="code-line">
+                  <span class="line-number">2</span>
+                  <span class="code-content"></span>
+                </div>
+                <div class="code-line">
+                  <span class="line-number">3</span>
+                  <span class="code-content"><span class="keyword">def</span> <span class="function">solve_challenge</span>():</span>
+                </div>
+                <div class="code-line">
+                  <span class="line-number">4</span>
+                  <span class="code-content">&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">score</span> = <span class="number">0</span></span>
+                </div>
+                <div class="code-line">
+                  <span class="line-number">5</span>
+                  <span class="code-content">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">for</span> test_case <span class="keyword">in</span> contests:</span>
+                </div>
+                <div class="code-line">
+                  <span class="line-number">6</span>
+                  <span class="code-content">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> solution.<span class="function">correct</span>():</span>
+                </div>
+                <div class="code-line">
+                  <span class="line-number">7</span>
+                  <span class="code-content">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;score += <span class="number">100</span></span>
+                </div>
+                <div class="code-line">
+                  <span class="line-number">8</span>
+                  <span class="code-content">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span></span>
+                </div>
+                <div class="code-line">
+                  <span class="line-number">9</span>
+                  <span class="code-content">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;leaderboard_position</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Bottom Left Purple Code Icon -->
+            <div class="absolute bottom-6 left-6">
+              <div class="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center shadow-lg">
+                <i data-lucide="code-2" class="w-6 h-6 text-white"></i>
+              </div>
+            </div>
+            
+            <!-- Top Right Trophy Icon -->
+            <div class="absolute top-6 right-6">
+              <div class="w-12 h-12 bg-yellow-500 rounded-lg flex items-center justify-center shadow-lg">
+                <i data-lucide="trophy" class="w-6 h-6 text-black"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  
+
+  <!-- How It Works Section -->
+  <section class="py-12 bg-gray-900">
+    <div class="container mx-auto px-6">
+      <div class="text-center mb-12">
+        <h2 class="text-4xl font-bold text-white mb-4">How It Works</h2>
+        <p class="text-gray-400 text-lg">Get started with competitive programming in three simple steps</p>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        
+        <!-- Step 1: Sign Up -->
+        <div class="text-center relative step-card">
+          <div class="relative mb-8">
+            <!-- Step Number -->
+            <div class="absolute -top-4 -right-4 w-8 h-8 bg-yellow-500 text-black rounded-full flex items-center justify-center text-sm font-bold z-10 step-number pulse-animation" style="--delay: 0s;">
+              1
+            </div>
+            <!-- Icon Container -->
+            <div class="w-20 h-20 bg-gradient-to-br from-purple-600 to-purple-700 rounded-2xl flex items-center justify-center mx-auto relative step-icon float-animation">
+              <i data-lucide="user-plus" class="w-10 h-10 text-white"></i>
+              <!-- Connecting Line (hidden on mobile) -->
+              <div class="hidden md:block absolute -right-16 top-1/2 w-16 h-0.5 bg-gradient-to-r from-purple-600 to-transparent connecting-line"></div>
+            </div>
+          </div>
+          <h3 class="text-2xl font-bold text-white mb-4">Sign Up</h3>
+          <p class="text-gray-400 leading-relaxed">
+            Create an account to register for contests and track your progress.
+          </p>
+        </div>
+        
+        <!-- Step 2: Join Contests -->
+        <div class="text-center relative step-card">
+          <div class="relative mb-8">
+            <!-- Step Number -->
+            <div class="absolute -top-4 -right-4 w-8 h-8 bg-yellow-500 text-black rounded-full flex items-center justify-center text-sm font-bold z-10 step-number pulse-animation" style="--delay: 0.5s;">
+              2
+            </div>
+            <!-- Icon Container -->
+            <div class="w-20 h-20 bg-gradient-to-br from-purple-600 to-purple-700 rounded-2xl flex items-center justify-center mx-auto relative step-icon float-animation" style="animation-delay: 1s;">
+              <i data-lucide="calendar-check" class="w-10 h-10 text-white"></i>
+              <!-- Connecting Line (hidden on mobile) -->
+              <div class="hidden md:block absolute -right-16 top-1/2 w-16 h-0.5 bg-gradient-to-r from-purple-600 to-transparent connecting-line" style="animation-delay: 1s;"></div>
+            </div>
+          </div>
+          <h3 class="text-2xl font-bold text-white mb-4">Join Contests</h3>
+          <p class="text-gray-400 leading-relaxed">
+            Participate in coding competitions at colleges or online.
+          </p>
+        </div>
+        
+        <!-- Step 3: Win Rewards -->
+        <div class="text-center relative step-card">
+          <div class="relative mb-8">
+            <!-- Step Number -->
+            <div class="absolute -top-4 -right-4 w-8 h-8 bg-yellow-500 text-black rounded-full flex items-center justify-center text-sm font-bold z-10 step-number pulse-animation" style="--delay: 1s;">
+              3
+            </div>
+            <!-- Icon Container -->
+            <div class="w-20 h-20 bg-gradient-to-br from-purple-600 to-purple-700 rounded-2xl flex items-center justify-center mx-auto step-icon float-animation" style="animation-delay: 2s;">
+              <i data-lucide="trophy" class="w-10 h-10 text-white"></i>
+            </div>
+          </div>
+          <h3 class="text-2xl font-bold text-white mb-4">Win Rewards</h3>
+          <p class="text-gray-400 leading-relaxed">
+            Solve problems, earn points, climb the leaderboard and win prizes.
+          </p>
+        </div>
+        
+      </div>
+      
+      <!-- Call to Action -->
+      <div class="text-center mt-12">
+        <p class="text-gray-400 text-lg mb-6">Ready to start your coding journey?</p>
+        <div class="flex items-center justify-center space-x-2 mb-6">
+          <span class="text-purple-400 font-medium">Join thousands of competitive programmers</span>
+          <div class="flex space-x-1">
+            <div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
+            <div class="w-2 h-2 bg-purple-500 rounded-full"></div>
+          </div>
+        </div>
+        <a href="{% url 'register' %}" class="glow-btn px-8 py-4 rounded-lg text-lg inline-flex items-center justify-center space-x-2">
+          <span>Start Competing Now</span>
+          <i data-lucide="arrow-right" class="w-5 h-5"></i>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  
+
+  <!-- Featured Contests -->
+  <section class="py-12 bg-gray-900">
+    <div class="container mx-auto px-6">
+      <div class="text-center mb-12">
+        <h2 class="text-4xl font-bold text-white mb-4">Featured Contests</h2>
+        <p class="text-gray-400 text-lg">Join our upcoming contests and test your programming skills against fellow coders</p>
+      </div>
+      
+      <div class="grid md:grid-cols-2 gap-6 max-w-6xl mx-auto">
+        
+        <!-- Sage Coding Competition -->
+        <div class="bg-gray-800 rounded-2xl p-6 border border-gray-700 hover:border-purple-500 transition-all duration-300 hover:scale-105">
+          <!-- Contest Tags -->
+          <div class="flex flex-wrap gap-2 mb-4">
+            <span class="bg-yellow-500 text-black px-3 py-1 rounded-full text-sm font-semibold">Medium</span>
+            <span class="bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-semibold">Campus</span>
+          </div>
+          
+          <!-- Contest Title -->
+          <h3 class="text-2xl font-bold text-white mb-4">Sage Coding Competition</h3>
+          
+          <!-- Contest Description -->
+          <p class="text-gray-400 mb-6 leading-relaxed">
+            A challenging competitive programming event focusing on dynamic programming and advanced algorithms. Test your skills at Sage University.
+          </p>
+          
+          <!-- Contest Details -->
+          <div class="space-y-3 mb-8">
+            <div class="flex items-center text-gray-300">
+              <i data-lucide="calendar" class="w-4 h-4 mr-3 text-purple-400"></i>
+              <span>September 15, 2025</span>
+              <i data-lucide="clock" class="w-4 h-4 ml-6 mr-3 text-purple-400"></i>
+              <span>10:00 AM IST</span>
+            </div>
+            <div class="flex items-center text-gray-300">
+              <i data-lucide="clock" class="w-4 h-4 mr-3 text-purple-400"></i>
+              <span>Duration: 3 hours</span>
+              <i data-lucide="users" class="w-4 h-4 ml-6 mr-3 text-purple-400"></i>
+              <span>400 participants</span>
+            </div>
+            <div class="flex items-center text-gray-300">
+              <i data-lucide="map-pin" class="w-4 h-4 mr-3 text-purple-400"></i>
+              <span>Sage University</span>
+            </div>
+          </div>
+          
+          <!-- Action Buttons -->
+          <div class="flex gap-4">
+            <a href="{% url 'register' %}" class="bg-yellow-500 hover:bg-yellow-400 text-black px-6 py-3 rounded-lg font-semibold transition-colors flex-1 text-center">
+              Register
+            </a>
+            <a href="{% url 'contest' %}" class="border border-gray-600 hover:border-gray-500 text-gray-300 hover:text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+              Details
+            </a>
+          </div>
+          
+          <!-- Countdown -->
+          <div class="mt-6 text-center">
+            <p class="text-gray-400 text-sm mb-2">Contest starts in</p>
+            <div class="flex justify-center gap-4 countdown-container" id="sage-countdown">
+              <div class="bg-purple-600 px-3 py-2 rounded-lg">
+                <span class="text-white font-bold text-lg countdown-days">00</span>
+                <p class="text-xs text-purple-200">DAYS</p>
+              </div>
+              <div class="bg-purple-600 px-3 py-2 rounded-lg">
+                <span class="text-white font-bold text-lg countdown-hours">00</span>
+                <p class="text-xs text-purple-200">HRS</p>
+              </div>
+              <div class="bg-purple-600 px-3 py-2 rounded-lg">
+                <span class="text-white font-bold text-lg countdown-minutes">00</span>
+                <p class="text-xs text-purple-200">MIN</p>
+              </div>
+              <div class="bg-purple-600 px-3 py-2 rounded-lg">
+                <span class="text-white font-bold text-lg countdown-seconds">00</span>
+                <p class="text-xs text-purple-200">SEC</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Weekly Coding Challenge -->
+        <div class="bg-gray-800 rounded-2xl p-6 border border-gray-700 hover:border-green-500 transition-all duration-300 hover:scale-105">
+          <!-- Contest Tags -->
+          <div class="flex flex-wrap gap-2 mb-4">
+            <span class="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-semibold flex items-center">
+              <span class="w-2 h-2 bg-white rounded-full mr-2 animate-pulse"></span>
+              LIVE
+            </span>
+            <span class="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold">Easy</span>
+            <span class="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold">Online</span>
+          </div>
+          
+          <!-- Contest Title -->
+          <h3 class="text-2xl font-bold text-white mb-4">Weekly Coding Challenge #15</h3>
+          
+          <!-- Contest Description -->
+          <p class="text-gray-400 mb-6 leading-relaxed">
+            Weekly algorithmic contest perfect for beginners and intermediate programmers. Sharpen your problem-solving skills.
+          </p>
+          
+          <!-- Contest Details -->
+          <div class="space-y-3 mb-8">
+            <div class="flex items-center text-gray-300">
+              <i data-lucide="calendar" class="w-4 h-4 mr-3 text-green-400"></i>
+              <span>September 15, 2025</span>
+              <i data-lucide="clock" class="w-4 h-4 ml-6 mr-3 text-green-400"></i>
+              <span>2:00 PM IST</span>
+            </div>
+            <div class="flex items-center text-gray-300">
+              <i data-lucide="clock" class="w-4 h-4 mr-3 text-green-400"></i>
+              <span>Duration: 2 hours</span>
+              <i data-lucide="users" class="w-4 h-4 ml-6 mr-3 text-green-400"></i>
+              <span>180 participants</span>
+            </div>
+            <div class="flex items-center text-gray-300">
+              <i data-lucide="globe" class="w-4 h-4 mr-3 text-green-400"></i>
+              <span>Online Contest</span>
+            </div>
+          </div>
+          
+          <!-- Action Buttons -->
+          <div class="flex gap-4">
+            <button disabled class="bg-gray-600 text-gray-400 px-6 py-3 rounded-lg font-semibold flex-1 text-center cursor-not-allowed opacity-60">
+              Join Contest (Coming Soon)
+            </button>
+            <a href="#" class="border border-gray-600 hover:border-gray-500 text-gray-300 hover:text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+              Details
+            </a>
+          </div>
+          
+          <!-- Countdown -->
+          <div class="mt-6 text-center">
+            <p class="text-gray-400 text-sm mb-2">Contest starts in</p>
+            <div class="flex justify-center gap-4 countdown-container" id="weekly-countdown">
+              <div class="bg-green-600 px-3 py-2 rounded-lg">
+                <span class="text-white font-bold text-lg countdown-days">00</span>
+                <p class="text-xs text-green-200">DAYS</p>
+              </div>
+              <div class="bg-green-600 px-3 py-2 rounded-lg">
+                <span class="text-white font-bold text-lg countdown-hours">00</span>
+                <p class="text-xs text-green-200">HRS</p>
+              </div>
+              <div class="bg-green-600 px-3 py-2 rounded-lg">
+                <span class="text-white font-bold text-lg countdown-minutes">00</span>
+                <p class="text-xs text-green-200">MIN</p>
+              </div>
+              <div class="bg-green-600 px-3 py-2 rounded-lg">
+                <span class="text-white font-bold text-lg countdown-seconds">00</span>
+                <p class="text-xs text-green-200">SEC</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <!-- Why Join Our Platform -->
+  <section class="py-12 bg-gray-900">
+    <div class="container mx-auto px-6">
+      <div class="text-center mb-12">
+        <h2 class="text-4xl font-bold text-white mb-4">Why Join Our Platform?</h2>
+        <p class="text-gray-400 text-lg max-w-3xl mx-auto">Discover the benefits of competitive programming and how our platform helps you grow as a developer</p>
+      </div>
+      
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+        
+        <!-- Skill Building -->
+        <div class="bg-gray-800 rounded-2xl p-6 border border-gray-700 hover:border-purple-500 transition-all duration-300 group">
+          <div class="flex items-center justify-center w-14 h-14 bg-purple-600 rounded-2xl mb-5 group-hover:bg-purple-500 transition-colors">
+            <i data-lucide="brain" class="w-7 h-7 text-white"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-3">Skill Building</h3>
+          <p class="text-gray-400 leading-relaxed">Competitions improve problem-solving and coding skills through challenging algorithmic problems.</p>
+        </div>
+
+        <!-- Boost Motivation -->
+        <div class="bg-gray-800 rounded-2xl p-6 border border-gray-700 hover:border-purple-500 transition-all duration-300 group">
+          <div class="flex items-center justify-center w-14 h-14 bg-purple-600 rounded-2xl mb-5 group-hover:bg-purple-500 transition-colors">
+            <i data-lucide="trending-up" class="w-7 h-7 text-white"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-3">Boost Motivation</h3>
+          <p class="text-gray-400 leading-relaxed">Gamified contests with leaderboards and prizes increase learning engagement and drive.</p>
+        </div>
+
+        <!-- Campus & Online -->
+        <div class="bg-gray-800 rounded-2xl p-6 border border-gray-700 hover:border-purple-500 transition-all duration-300 group">
+          <div class="flex items-center justify-center w-14 h-14 bg-purple-600 rounded-2xl mb-5 group-hover:bg-purple-500 transition-colors">
+            <i data-lucide="globe" class="w-7 h-7 text-white"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-3">Campus & Online</h3>
+          <p class="text-gray-400 leading-relaxed">Participate from your college or anywhere, anytime with flexible contest formats.</p>
+        </div>
+
+        <!-- Win Rewards -->
+        <div class="bg-gray-800 rounded-2xl p-6 border border-gray-700 hover:border-purple-500 transition-all duration-300 group">
+          <div class="flex items-center justify-center w-14 h-14 bg-purple-600 rounded-2xl mb-5 group-hover:bg-purple-500 transition-colors">
+            <i data-lucide="trophy" class="w-7 h-7 text-white"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-3">Win Rewards</h3>
+          <p class="text-gray-400 leading-relaxed">Earn prizes, certificates, and recognition for your programming achievements.</p>
+        </div>
+
+        <!-- Community -->
+        <div class="bg-gray-800 rounded-2xl p-6 border border-gray-700 hover:border-purple-500 transition-all duration-300 group">
+          <div class="flex items-center justify-center w-14 h-14 bg-purple-600 rounded-2xl mb-5 group-hover:bg-purple-500 transition-colors">
+            <i data-lucide="users" class="w-7 h-7 text-white"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-3">Community</h3>
+          <p class="text-gray-400 leading-relaxed">Connect with fellow programmers, learn from peers, and build lasting relationships.</p>
+        </div>
+
+        <!-- Real Experience -->
+        <div class="bg-gray-800 rounded-2xl p-6 border border-gray-700 hover:border-purple-500 transition-all duration-300 group">
+          <div class="flex items-center justify-center w-14 h-14 bg-purple-600 rounded-2xl mb-5 group-hover:bg-purple-500 transition-colors">
+            <i data-lucide="code" class="w-7 h-7 text-white"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-3">Real Experience</h3>
+          <p class="text-gray-400 leading-relaxed">Practice with industry-standard problems and interview-style coding challenges.</p>
+        </div>
+        
+      </div>
+
+      <!-- Ready to Code Section -->
+      <div class="mt-12 text-center bg-gradient-to-r from-purple-900 to-blue-900 rounded-3xl p-8 border border-purple-500">
+        <h3 class="text-3xl font-bold text-white mb-4">Ready to Code?</h3>
+        <p class="text-gray-300 text-lg mb-6 max-w-3xl mx-auto">Join thousands of students who are already improving their programming skills through our competitions. Start your journey today and become part of the coding community.</p>
+        
+        <!-- Feature badges -->
+        <div class="flex flex-wrap justify-center gap-6 mb-6">
+          <div class="flex items-center space-x-2">
+            <div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
+            <span class="text-gray-300">Free to join</span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <div class="w-2 h-2 bg-purple-500 rounded-full"></div>
+            <span class="text-gray-300">Multiple difficulty levels</span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+            <span class="text-gray-300">Instant feedback</span>
+          </div>
+        </div>
+        
+        <a href="{% url 'register' %}" class="glow-btn px-8 py-4 rounded-lg text-lg inline-flex items-center justify-center space-x-2">
+          <span>Start Your Journey</span>
+          <i data-lucide="rocket" class="w-5 h-5"></i>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="about" class="py-20 bg-gray-800">
+    <div class="container mx-auto px-6">
+      <!-- About Header -->
+      <div class="text-center mb-16">
+        <h2 class="text-4xl md:text-5xl font-bold mb-6">
+          About <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Data Decode</span>
+        </h2>
+        <p class="text-xl text-gray-300 max-w-3xl mx-auto">
+          Data Decode is a Bhopal-based learning and assessment platform focused on data and coding challenges. We help students practice real-world problem solving through curated contests and hands-on labs.
+        </p>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16">
+        <div class="text-center">
+          <div class="text-4xl font-bold text-purple-400 mb-2">1</div>
+          <div class="text-gray-300">Years Experience</div>
+        </div>
+        <div class="text-center">
+          <div class="text-4xl font-bold text-purple-400 mb-2">500+</div>
+          <div class="text-gray-300">Students Trained</div>
+        </div>
+        <div class="text-center">
+          <div class="text-4xl font-bold text-purple-400 mb-2">20+</div>
+          <div class="text-gray-300">Projects Completed</div>
+        </div>
+        <div class="text-center">
+          <div class="text-4xl font-bold text-purple-400 mb-2">25+</div>
+          <div class="text-gray-300">Industry Partners</div>
+        </div>
+      </div>
+
+      <!-- Main Content Grid -->
+      <div class="grid lg:grid-cols-2 gap-16 items-center">
+        
+        <!-- Left Content -->
+        <div>
+          <h3 class="text-3xl font-bold mb-6 text-white">Our Mission</h3>
+          <p class="text-gray-300 mb-6 text-lg leading-relaxed">
+            We bridge academia and industry by building job‑ready skills through practical, feedback-driven challenges in data and software. Learners solve real problems, get clear results, and improve with guidance.
+          </p>
+          
+          <div class="grid grid-cols-2 gap-6 mb-8">
+            <div class="bg-gray-700 p-6 rounded-lg">
+              <div class="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center mb-4">
+                <i data-lucide="award" class="w-6 h-6 text-white"></i>
+              </div>
+              <h4 class="font-semibold text-white mb-2">Quality Education</h4>
+              <p class="text-gray-300 text-sm">Goal-Oriented learning path with hands-on projects and continuous learning.</p>
+            </div>
+            
+            <div class="bg-gray-700 p-6 rounded-lg">
+              <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center mb-4">
+                <i data-lucide="users" class="w-6 h-6 text-white"></i>
+              </div>
+              <h4 class="font-semibold text-white mb-2">Community</h4>
+              <p class="text-gray-300 text-sm">Supportive community of students, mentors and working professionals.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Content - What We Teach -->
+        <div>
+          <h3 class="text-3xl font-bold mb-8 text-white">What We Teach</h3>
+          
+          <!-- Course Categories -->
+          <div class="space-y-6">
+            
+            <!-- Data Science Track -->
+            <div class="bg-gradient-to-r from-purple-600 to-blue-600 p-6 rounded-lg">
+              <h4 class="text-xl font-bold text-white mb-4 flex items-center">
+                <i data-lucide="bar-chart-3" class="w-6 h-6 mr-3"></i>
+                Data Science & Analytics
+              </h4>
+              <div class="grid grid-cols-2 gap-4 text-white">
+                <div class="flex items-center space-x-2">
+                  <i data-lucide="check" class="w-4 h-4 text-green-300"></i>
+                  <span>Python Programming</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <i data-lucide="check" class="w-4 h-4 text-green-300"></i>
+                  <span>SQL & Databases</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <i data-lucide="check" class="w-4 h-4 text-green-300"></i>
+                  <span>Power BI</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <i data-lucide="check" class="w-4 h-4 text-green-300"></i>
+                  <span>Machine Learning</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Programming Track -->
+            <div class="bg-gradient-to-r from-green-600 to-teal-600 p-6 rounded-lg">
+              <h4 class="text-xl font-bold text-white mb-4 flex items-center">
+                <i data-lucide="code-2" class="w-6 h-6 mr-3"></i>
+                Programming & Development
+              </h4>
+              <div class="grid grid-cols-2 gap-4 text-white">
+                <div class="flex items-center space-x-2">
+                  <i data-lucide="check" class="w-4 h-4 text-green-300"></i>
+                  <span>Python</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <i data-lucide="check" class="w-4 h-4 text-green-300"></i>
+                  <span>JavaScript</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <i data-lucide="check" class="w-4 h-4 text-green-300"></i>
+                  <span>Web Development</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <i data-lucide="check" class="w-4 h-4 text-green-300"></i>
+                  <span>Data Structures</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Business Intelligence -->
+            <div class="bg-gradient-to-r from-orange-600 to-red-600 p-6 rounded-lg">
+              <h4 class="text-xl font-bold text-white mb-4 flex items-center">
+                <i data-lucide="trending-up" class="w-6 h-6 mr-3"></i>
+                Business Intelligence
+              </h4>
+              <div class="grid grid-cols-2 gap-4 text-white">
+                <div class="flex items-center space-x-2">
+                  <i data-lucide="check" class="w-4 h-4 text-green-300"></i>
+                  <span>Power BI</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <i data-lucide="check" class="w-4 h-4 text-green-300"></i>
+                  <span>Tableau</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <i data-lucide="check" class="w-4 h-4 text-green-300"></i>
+                  <span>Excel Analytics</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <i data-lucide="check" class="w-4 h-4 text-green-300"></i>
+                  <span>Data Visualization</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Why Coding Competitions Matter -->
+      <div class="mt-20 text-center">
+        <h3 class="text-3xl font-bold mb-8 text-white">Why Coding Competitions Matter</h3>
+        <div class="grid md:grid-cols-3 gap-8">
+          
+          <div class="bg-gray-700 p-8 rounded-lg">
+            <div class="text-5xl font-bold text-purple-400 mb-4">85%</div>
+            <p class="text-gray-300">Improvement in problem-solving skills through coding contests</p>
+          </div>
+          
+          <div class="bg-gray-700 p-8 rounded-lg">
+            <div class="text-5xl font-bold text-blue-400 mb-4">3x</div>
+            <p class="text-gray-300">Better interview success rate for competitive programmers</p>
+          </div>
+          
+          <div class="bg-gray-700 p-8 rounded-lg">
+            <div class="text-5xl font-bold text-green-400 mb-4">90%</div>
+            <p class="text-gray-300">Career advancement rate for regular contest participants</p>
+          </div>
+          
+        </div>
+      </div>
+
+      <!-- Our Technology Stack -->
+      <div class="mt-20">
+        <h3 class="text-3xl font-bold mb-8 text-center text-white">Our Technology Stack</h3>
+        <p class="text-center text-gray-300 mb-12">Built with modern and reliable technologies to provide the best user experience</p>
+        
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8">
+          <div class="bg-gray-700 p-6 rounded-lg text-center hover:bg-gray-600 transition-colors">
+            <div class="text-3xl mb-2">🐍</div>
+            <div class="font-semibold text-white">Python</div>
+          </div>
+          
+          <div class="bg-gray-700 p-6 rounded-lg text-center hover:bg-gray-600 transition-colors">
+            <div class="text-3xl mb-2">🌐</div>
+            <div class="font-semibold text-white">Django</div>
+          </div>
+          
+          <div class="bg-gray-700 p-6 rounded-lg text-center hover:bg-gray-600 transition-colors">
+            <div class="text-3xl mb-2">📊</div>
+            <div class="font-semibold text-white">Power BI</div>
+          </div>
+          
+          <div class="bg-gray-700 p-6 rounded-lg text-center hover:bg-gray-600 transition-colors">
+            <div class="text-3xl mb-2">🗄️</div>
+            <div class="font-semibold text-white">SQL</div>
+          </div>
+          
+          <div class="bg-gray-700 p-6 rounded-lg text-center hover:bg-gray-600 transition-colors">
+            <div class="text-3xl mb-2">⚛️</div>
+            <div class="font-semibold text-white">React</div>
+          </div>
+          
+          <div class="bg-gray-700 p-6 rounded-lg text-center hover:bg-gray-600 transition-colors">
+            <div class="text-3xl mb-2">☁️</div>
+            <div class="font-semibold text-white">AWS</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="py-20 bg-gray-900">
+    <div class="container mx-auto px-6">
+      <!-- Contact Header -->
+      <div class="text-center mb-16">
+        <h2 class="text-4xl md:text-5xl font-bold mb-6">
+          Get in <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Touch</span>
+        </h2>
+        <p class="text-xl text-gray-300 max-w-3xl mx-auto">
+          We'd love to hear from you! Whether you have questions, suggestions, or just want to say hello.
+        </p>
+      </div>
+
+      <!-- Contact Content Grid -->
+      <div class="grid lg:grid-cols-2 gap-16 max-w-7xl mx-auto">
+        
+        <!-- Contact Form -->
+        <div class="bg-gray-800 rounded-2xl p-8 border border-gray-700">
+          <h3 class="text-2xl font-bold text-white mb-6">Send us a Message</h3>
+          <p class="text-gray-400 mb-8">Fill out the form below and we'll get back to you as soon as possible.</p>
+          
+          <form class="space-y-6">
+            <!-- Name and Email Row -->
+            <div class="grid md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-white font-medium mb-2">
+                  Full Name <span class="text-red-400">*</span>
+                </label>
+                <input 
+                  type="text" 
+                  placeholder="Your full name"
+                  class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-500 focus:ring-opacity-20 transition-all duration-200"
+                  required
+                >
+              </div>
+              
+              <div>
+                <label class="block text-white font-medium mb-2">
+                  Email Address <span class="text-red-400">*</span>
+                </label>
+                <input 
+                  type="email" 
+                  placeholder="your@email.com"
+                  class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-500 focus:ring-opacity-20 transition-all duration-200"
+                  required
+                >
+              </div>
+            </div>
+
+            <!-- Subject -->
+            <div>
+              <label class="block text-white font-medium mb-2">
+                Subject <span class="text-red-400">*</span>
+              </label>
+              <input 
+                type="text" 
+                placeholder="What is this about?"
+                class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-500 focus:ring-opacity-20 transition-all duration-200"
+                required
+              >
+            </div>
+
+            <!-- Message -->
+            <div>
+              <label class="block text-white font-medium mb-2">
+                Message <span class="text-red-400">*</span>
+              </label>
+              <textarea 
+                rows="5" 
+                placeholder="Tell us more about your inquiry..."
+                class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-500 focus:ring-opacity-20 transition-all duration-200 resize-none"
+                required
+              ></textarea>
+            </div>
+
+            <!-- Submit Button -->
+            <button 
+              type="submit"
+              class="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold py-4 px-6 rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-200 flex items-center justify-center space-x-2 group"
+            >
+              <i data-lucide="send" class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
+              <span>Send Message</span>
+            </button>
+          </form>
+
+          <p class="text-gray-400 text-sm mt-6">
+            We typically respond within 2 business days. For urgent matters, please call us directly.
+          </p>
+        </div>
+
+        <!-- Contact Information -->
+        <div class="space-y-8">
+          <div>
+            <h3 class="text-2xl font-bold text-white mb-6">Contact Information</h3>
+            <p class="text-gray-400 mb-8">
+              Reach out to us through any of these channels. We're here to help!
+            </p>
+          </div>
+
+          <!-- Contact Cards -->
+          <div class="space-y-6">
+            
+            <!-- Email Card -->
+            <div class="bg-gray-800 rounded-xl p-6 border border-gray-700 hover:border-purple-500 transition-all duration-300 group">
+              <div class="flex items-start space-x-4">
+                <div class="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center group-hover:bg-purple-500 transition-colors">
+                  <i data-lucide="mail" class="w-6 h-6 text-white"></i>
+                </div>
+                <div class="flex-1">
+                  <h4 class="text-xl font-semibold text-white mb-2">Email Us</h4>
+                  <p class="text-purple-400 font-medium text-lg mb-1">contact@decodedata.academy</p>
+                  <p class="text-gray-400 text-sm">Send us an email anytime!</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Phone Card -->
+            <div class="bg-gray-800 rounded-xl p-6 border border-gray-700 hover:border-purple-500 transition-all duration-300 group">
+              <div class="flex items-start space-x-4">
+                <div class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-500 transition-colors">
+                  <i data-lucide="phone" class="w-6 h-6 text-white"></i>
+                </div>
+                <div class="flex-1">
+                  <h4 class="text-xl font-semibold text-white mb-2">Call Us</h4>
+                  <p class="text-blue-400 font-medium text-lg mb-1">+917489269422</p>
+                  <p class="text-gray-400 text-sm">Mon-sat from 11am to 8pm</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Location Card -->
+            <div class="bg-gray-800 rounded-xl p-6 border border-gray-700 hover:border-purple-500 transition-all duration-300 group">
+              <div class="flex items-start space-x-4">
+                <div class="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center group-hover:bg-green-500 transition-colors">
+                  <i data-lucide="map-pin" class="w-6 h-6 text-white"></i>
+                </div>
+                <div class="flex-1">
+                  <h4 class="text-xl font-semibold text-white mb-2">Visit Us</h4>
+                  <p class="text-green-400 font-medium text-lg mb-1">Tower 90 2nd - Floor, Anoop, 2, MP Nagar Zone-I, Zone-II, Maharana Pratap Nagar, Bhopal, Madhya Pradesh 462011</p>
+                  <p class="text-gray-400 text-sm">India</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Social Media Links -->
+          <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+            <h4 class="text-lg font-semibold text-white mb-4">Follow Us</h4>
+            <div class="flex space-x-4">
+              <a href="#" class="w-10 h-10 bg-gray-700 rounded-lg flex items-center justify-center text-gray-400 hover:bg-purple-600 hover:text-white transition-all duration-200">
+                <i data-lucide="twitter" class="w-5 h-5"></i>
+              </a>
+              <a href="#" class="w-10 h-10 bg-gray-700 rounded-lg flex items-center justify-center text-gray-400 hover:bg-blue-600 hover:text-white transition-all duration-200">
+                <i data-lucide="linkedin" class="w-5 h-5"></i>
+              </a>
+              <a href="#" class="w-10 h-10 bg-gray-700 rounded-lg flex items-center justify-center text-gray-400 hover:bg-gray-800 hover:text-white transition-all duration-200">
+                <i data-lucide="github" class="w-5 h-5"></i>
+              </a>
+              <a href="#" class="w-10 h-10 bg-gray-700 rounded-lg flex items-center justify-center text-gray-400 hover:bg-red-600 hover:text-white transition-all duration-200">
+                <i data-lucide="youtube" class="w-5 h-5"></i>
+              </a>
+            </div>
+          </div>
+
+          <!-- Quick Response Info -->
+          <div class="bg-gradient-to-r from-purple-900 to-blue-900 rounded-xl p-6 border border-purple-500">
+            <div class="flex items-center space-x-3 mb-3">
+              <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
+                <i data-lucide="clock" class="w-4 h-4 text-white"></i>
+              </div>
+              <h4 class="text-lg font-semibold text-white">Quick Response Guarantee</h4>
+            </div>
+            <p class="text-gray-300 text-sm">
+              We pride ourselves on quick responses. Expect to hear back from us within 24 hours on business days.
+            </p>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Additional Contact Options -->
+      <div class="mt-16 text-center">
+        <h3 class="text-2xl font-bold text-white mb-8">Other Ways to Connect</h3>
+        <div class="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+          
+          <div class="bg-gray-800 rounded-xl p-6 border border-gray-700 hover:border-purple-500 transition-all duration-300">
+            <div class="w-16 h-16 bg-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <i data-lucide="calendar" class="w-8 h-8 text-white"></i>
+            </div>
+            <h4 class="text-lg font-semibold text-white mb-2">Schedule a Meeting</h4>
+            <p class="text-gray-400 text-sm mb-4">Book a 1-on-1 consultation session with our experts</p>
+            <button class="text-purple-400 hover:text-purple-300 font-medium">Schedule Now →</button>
+          </div>
+
+          <div class="bg-gray-800 rounded-xl p-6 border border-gray-700 hover:border-purple-500 transition-all duration-300">
+            <div class="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <i data-lucide="help-circle" class="w-8 h-8 text-white"></i>
+            </div>
+            <h4 class="text-lg font-semibold text-white mb-2">Help Center</h4>
+            <p class="text-gray-400 text-sm mb-4">Browse our knowledge base for quick answers</p>
+            <button class="text-blue-400 hover:text-blue-300 font-medium">Visit Help Center →</button>
+          </div>
+
+          <div class="bg-gray-800 rounded-xl p-6 border border-gray-700 hover:border-purple-500 transition-all duration-300">
+            <div class="w-16 h-16 bg-green-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <i data-lucide="users" class="w-8 h-8 text-white"></i>
+            </div>
+            <h4 class="text-lg font-semibold text-white mb-2">Join Community</h4>
+            <p class="text-gray-400 text-sm mb-4">Connect with fellow students and instructors</p>
+            <button class="text-green-400 hover:text-green-300 font-medium">Join Discord →</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 border-t border-gray-700">
+    <div class="container mx-auto px-6 py-8">
+      <div class="grid md:grid-cols-4 gap-6">
+        
+        <!-- Company Info -->
+        <div class="md:col-span-1">
+          <div class="flex items-center space-x-3 mb-4">
+            <div class="bg-purple-600 p-2 rounded-lg">
+              <i data-lucide="code-2" class="w-6 h-6 text-white"></i>
+            </div>
+            <div>
+              <h3 class="text-white font-bold text-lg">DDA Contests</h3>
+              <p class="text-gray-400 text-sm">Decode Data Academy</p>
+            </div>
+          </div>
+          <p class="text-gray-400 text-sm leading-relaxed mb-4">
+            Empowering students through competitive programming and coding excellence. Join our community of passionate developers.
+          </p>
+          
+          <!-- Social Media Links -->
+          <div class="flex space-x-4">
+            <a href="#" class="text-gray-400 hover:text-purple-500 transition-colors">
+              <i data-lucide="twitter" class="w-5 h-5"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-purple-500 transition-colors">
+              <i data-lucide="linkedin" class="w-5 h-5"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-purple-500 transition-colors">
+              <i data-lucide="github" class="w-5 h-5"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div>
+          <h4 class="text-white font-semibold text-lg mb-4">QUICK LINKS</h4>
+          <ul class="space-y-2">
+            <li><a href="{% url 'home' %}" class="text-gray-400 hover:text-white transition-colors">Home</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Contests</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Leaderboard</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">About Us</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Contact</a></li>
+          </ul>
+        </div>
+
+        <!-- Contests -->
+        <div>
+          <h4 class="text-white font-semibold text-lg mb-4">CONTESTS</h4>
+          <ul class="space-y-2">
+            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Upcoming Contests</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Past Contests</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Practice Problems</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Contest Rules</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">FAQ</a></li>
+          </ul>
+        </div>
+
+        <!-- Contact Info -->
+        <div>
+          <h4 class="text-white font-semibold text-lg mb-6">CONTACT INFO</h4>
+          <div class="space-y-4">
+            <div class="flex items-center space-x-3">
+              <i data-lucide="mail" class="w-5 h-5 text-purple-500"></i>
+              <a href="mailto:contact@decodedata.academy" class="text-gray-400 hover:text-white transition-colors">
+                contact@decodedata.academy
+              </a>
+            </div>
+            <div class="flex items-center space-x-3">
+              <i data-lucide="phone" class="w-5 h-5 text-purple-500"></i>
+              <span class="text-gray-400">+917489269422</span>
+            </div>
+            <div class="flex items-center space-x-3">
+              <i data-lucide="map-pin" class="w-5 h-5 text-purple-500"></i>
+              <span class="text-gray-400">Tower 90 2nd - Floor, Anoop, 2, MP Nagar Zone-I, Zone-II, Maharana Pratap Nagar, Bhopal, Madhya Pradesh 462011</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Bottom Footer -->
+      <div class="border-t border-gray-700 mt-12 pt-8">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+          <p class="text-gray-400 text-sm mb-4 md:mb-0">
+            &copy; 2025 Decode Data Academy. All rights reserved.
+          </p>
+          
+          <!-- Footer Links -->
+          <div class="flex space-x-6">
+            <a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">Privacy Policy</a>
+            <a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">Terms of Service</a>
+            <a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">Help</a>
+          </div>
+        </div>
+        
+        <!-- Powered by section -->
+        <div class="text-center mt-6">
+          <p class="text-gray-500 text-sm flex items-center justify-center space-x-2">
+            <i data-lucide="heart" class="w-4 h-4 text-red-500"></i>
+            <span>Powered by passion for coding excellence • 11+ years of tech education experience</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    lucide.createIcons();
+    
+    // Mobile menu toggle
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+    mobileMenuButton.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    });
+
+    // Smooth scrolling for navigation links
+    document.addEventListener('DOMContentLoaded', function() {
+      // Add smooth scrolling to all scroll-link anchor links
+      const scrollLinks = document.querySelectorAll('.scroll-link');
+      
+      scrollLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          
+          const targetId = this.getAttribute('href');
+          const targetSection = document.querySelector(targetId);
+          
+          if (targetSection) {
+            // Close mobile menu if open
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (!mobileMenu.classList.contains('hidden')) {
+              mobileMenu.classList.add('hidden');
+            }
+            
+            // Smooth scroll to target section
+            targetSection.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            });
+          }
+        });
+      });
+
+      // Add active navigation highlighting
+      const sections = document.querySelectorAll('section[id]');
+      const navLinks = document.querySelectorAll('.scroll-link');
+
+      window.addEventListener('scroll', () => {
+        let current = '';
+        sections.forEach(section => {
+          const sectionTop = section.offsetTop;
+          const sectionHeight = section.clientHeight;
+          if (scrollY >= (sectionTop - 200)) {
+            current = section.getAttribute('id');
+          }
+        });
+
+        navLinks.forEach(link => {
+          link.classList.remove('text-purple-400');
+          if (link.getAttribute('href') === `#${current}`) {
+            link.classList.add('text-purple-400');
+          }
+        });
+      });
+    });
+
+    // Alert system functionality
+    function closeAlert(button) {
+      const alert = button.closest('.alert-message');
+      alert.style.transform = 'translateX(100%)';
+      setTimeout(() => {
+        alert.remove();
+      }, 300);
+    }
+
+    // Auto-show alerts with animation
+    document.addEventListener('DOMContentLoaded', function() {
+      const alerts = document.querySelectorAll('.alert-message');
+      alerts.forEach((alert, index) => {
+        setTimeout(() => {
+          alert.style.transform = 'translateX(0)';
+        }, index * 200);
+        
+        // Auto-close after 8 seconds for info messages, 5 seconds for others
+        const isInfo = alert.classList.contains('border-blue-500');
+        const autoCloseTime = isInfo ? 8000 : 5000;
+        
+        setTimeout(() => {
+          if (alert.parentNode) {
+            closeAlert(alert.querySelector('button'));
+          }
+        }, autoCloseTime);
+      });
+
+      // Initialize countdown timers
+      initializeCountdowns();
+    });
+
+    // Live Countdown Timer Function
+    function initializeCountdowns() {
+      // Contest dates (September 15, 2025 at specific times)
+      const contests = [
+        {
+          id: 'sage-countdown',
+          date: new Date('2025-09-15 10:00:00').getTime(), // Sage Contest: Sep 15, 10:00 AM
+          name: 'Sage Coding Competition'
+        },
+        {
+          id: 'weekly-countdown',
+          date: new Date('2025-09-15 14:00:00').getTime(), // Weekly Contest: Sep 15, 2:00 PM
+          name: 'Weekly Coding Challenge'
+        }
+      ];
+
+      // Update countdown every second
+      const countdownInterval = setInterval(function() {
+        const now = new Date().getTime();
+        
+        contests.forEach(contest => {
+          const distance = contest.date - now;
+          const countdownElement = document.getElementById(contest.id);
+          
+          if (!countdownElement) return;
+
+          if (distance > 0) {
+            // Calculate time components
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            // Update the display with animation
+            updateCountdownDisplay(countdownElement, days, hours, minutes, seconds);
+          } else {
+            // Contest has started or ended
+            showContestStatus(countdownElement, 'Contest has started!');
+          }
+        });
+      }, 1000);
+
+      // Initial update
+      setTimeout(() => {
+        const now = new Date().getTime();
+        contests.forEach(contest => {
+          const distance = contest.date - now;
+          const countdownElement = document.getElementById(contest.id);
+          
+          if (countdownElement && distance > 0) {
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            updateCountdownDisplay(countdownElement, days, hours, minutes, seconds);
+          }
+        });
+      }, 100);
+    }
+
+    function updateCountdownDisplay(element, days, hours, minutes, seconds) {
+      const daysEl = element.querySelector('.countdown-days');
+      const hoursEl = element.querySelector('.countdown-hours');
+      const minutesEl = element.querySelector('.countdown-minutes');
+      const secondsEl = element.querySelector('.countdown-seconds');
+
+      if (daysEl && daysEl.textContent !== String(days).padStart(2, '0')) {
+        daysEl.style.transform = 'scale(1.2)';
+        daysEl.textContent = String(days).padStart(2, '0');
+        setTimeout(() => daysEl.style.transform = 'scale(1)', 200);
+      }
+
+      if (hoursEl && hoursEl.textContent !== String(hours).padStart(2, '0')) {
+        hoursEl.style.transform = 'scale(1.2)';
+        hoursEl.textContent = String(hours).padStart(2, '0');
+        setTimeout(() => hoursEl.style.transform = 'scale(1)', 200);
+      }
+
+      if (minutesEl && minutesEl.textContent !== String(minutes).padStart(2, '0')) {
+        minutesEl.style.transform = 'scale(1.2)';
+        minutesEl.textContent = String(minutes).padStart(2, '0');
+        setTimeout(() => minutesEl.style.transform = 'scale(1)', 200);
+      }
+
+      if (secondsEl && secondsEl.textContent !== String(seconds).padStart(2, '0')) {
+        secondsEl.style.transform = 'scale(1.2)';
+        secondsEl.textContent = String(seconds).padStart(2, '0');
+        setTimeout(() => secondsEl.style.transform = 'scale(1)', 200);
+      }
+    }
+
+    function showContestStatus(element, message) {
+      element.innerHTML = `
+        <div class="text-center animate-pulse">
+          <div class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg font-semibold shadow-lg">
+            <i data-lucide="play-circle" class="w-5 h-5 mr-2"></i>
+            ${message}
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+  </script>
+</body>
+<script type="module" src="{% static 'build/home.js' %}"></script>
+</html>

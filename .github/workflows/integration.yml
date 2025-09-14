@@ -1,0 +1,251 @@
+name: Full Stack Integration
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run integration tests daily at 2 AM UTC
+    - cron: '0 2 * * *'
+
+env:
+  COMPOSE_FILE: infra/compose/dev/docker-compose.yml
+
+jobs:
+  integration-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Create environment file
+      run: |
+        cat > .env << EOF
+        DEBUG=True
+        SECRET_KEY=test-secret-key-for-integration-testing
+        DATABASE_URL=postgresql://postgres:postgres@postgres:5432/dda_contest
+        REDIS_URL=redis://redis:6379/0
+        JUDGE0_URL=http://judge0:2358
+        ALLOWED_HOSTS=localhost,127.0.0.1,backend
+        CORS_ALLOWED_ORIGINS=http://localhost:3000,http://frontend:3000
+        POSTGRES_DB=dda_contest
+        POSTGRES_USER=postgres
+        POSTGRES_PASSWORD=postgres
+        CELERY_BROKER_URL=redis://redis:6379/0
+        CELERY_RESULT_BACKEND=redis://redis:6379/1
+        EOF
+
+    - name: Build and start services
+      run: |
+        docker compose -f ${{ env.COMPOSE_FILE }} build
+        docker compose -f ${{ env.COMPOSE_FILE }} up -d
+
+    - name: Wait for services to be ready
+      run: |
+        echo "Waiting for services to start..."
+        sleep 30
+        
+        # Wait for backend health check
+        timeout 60 bash -c 'until curl -f http://localhost/api/health/; do sleep 2; done'
+        
+        # Wait for frontend to be ready
+        timeout 60 bash -c 'until curl -f http://localhost:3000; do sleep 2; done'
+        
+        # Wait for Judge0 to be ready
+        timeout 60 bash -c 'until curl -f http://localhost:2358/system_info; do sleep 2; done'
+
+    - name: Run database migrations
+      run: |
+        docker compose -f ${{ env.COMPOSE_FILE }} exec -T backend python manage.py migrate
+
+    - name: Create test data
+      run: |
+        docker compose -f ${{ env.COMPOSE_FILE }} exec -T backend python manage.py shell -c "
+        from django.contrib.auth.models import User
+        from student_auth.models import Problem, TestCase
+        
+        # Create test user
+        user, created = User.objects.get_or_create(
+            username='testuser',
+            defaults={'email': 'test@example.com', 'first_name': 'Test', 'last_name': 'User'}
+        )
+        if created:
+            user.set_password('testpass123')
+            user.save()
+        
+        # Create test problem
+        problem, created = Problem.objects.get_or_create(
+            title='Test Problem',
+            defaults={
+                'description': 'A simple test problem for integration testing',
+                'difficulty': 'Easy',
+                'time_limit': 5,
+                'memory_limit': 128,
+                'starter_code_python': 'def solution():\n    pass',
+            }
+        )
+        
+        # Create test case
+        if created:
+            TestCase.objects.create(
+                problem=problem,
+                input_data='5',
+                expected_output='5',
+                is_sample=True
+            )
+        
+        print('Test data created successfully')
+        "
+
+    - name: Run integration tests
+      run: |
+        # Test backend API endpoints
+        echo "Testing backend API..."
+        
+        # Health check
+        curl -f http://localhost/api/health/ || exit 1
+        
+        # Test problem list endpoint
+        curl -f http://localhost/api/problems/ || exit 1
+        
+        # Test Judge0 integration
+        curl -f http://localhost/api/judge0/health/ || exit 1
+        
+        echo "Backend API tests passed ✓"
+        
+        # Test frontend accessibility
+        echo "Testing frontend..."
+        curl -f http://localhost:3000 || exit 1
+        echo "Frontend accessibility test passed ✓"
+
+    - name: Run end-to-end tests
+      run: |
+        # Install test dependencies
+        npm install -g playwright
+        
+        # Create a simple E2E test
+        cat > e2e-test.js << 'EOF'
+        const { chromium } = require('playwright');
+        
+        (async () => {
+          const browser = await chromium.launch();
+          const page = await browser.newPage();
+          
+          // Test frontend loads
+          await page.goto('http://localhost:3000');
+          await page.waitForLoadState('networkidle');
+          
+          // Check if page title contains expected text
+          const title = await page.title();
+          console.log('Page title:', title);
+          
+          // Test basic navigation
+          const problemsLink = await page.$('a[href*="problem"]');
+          if (problemsLink) {
+            console.log('Problems link found ✓');
+          }
+          
+          await browser.close();
+          console.log('E2E test completed successfully ✓');
+        })();
+        EOF
+        
+        node e2e-test.js
+
+    - name: Test code submission flow
+      run: |
+        echo "Testing code submission flow..."
+        
+        # Create a test submission
+        RESPONSE=$(curl -s -X POST http://localhost/api/submissions/ \
+          -H "Content-Type: application/json" \
+          -d '{
+            "problem_id": 1,
+            "language": "python",
+            "code": "def solution():\n    return 5"
+          }')
+        
+        echo "Submission response: $RESPONSE"
+        
+        # Check if submission was created (response should contain submission ID)
+        if [[ $RESPONSE == *"id"* ]]; then
+          echo "Code submission test passed ✓"
+        else
+          echo "Code submission test failed ✗"
+          exit 1
+        fi
+
+    - name: Check service logs for errors
+      if: failure()
+      run: |
+        echo "Checking service logs..."
+        docker compose -f ${{ env.COMPOSE_FILE }} logs backend
+        docker compose -f ${{ env.COMPOSE_FILE }} logs frontend
+        docker compose -f ${{ env.COMPOSE_FILE }} logs judge0
+
+    - name: Cleanup
+      if: always()
+      run: |
+        docker compose -f ${{ env.COMPOSE_FILE }} down -v
+        docker system prune -f
+
+  performance-test:
+    runs-on: ubuntu-latest
+    needs: integration-test
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Create environment file
+      run: |
+        cat > .env << EOF
+        DEBUG=False
+        SECRET_KEY=test-secret-key-for-performance-testing
+        DATABASE_URL=postgresql://postgres:postgres@postgres:5432/dda_contest
+        REDIS_URL=redis://redis:6379/0
+        JUDGE0_URL=http://judge0:2358
+        ALLOWED_HOSTS=localhost,127.0.0.1,backend
+        CORS_ALLOWED_ORIGINS=http://localhost:3000
+        POSTGRES_DB=dda_contest
+        POSTGRES_USER=postgres
+        POSTGRES_PASSWORD=postgres
+        EOF
+
+    - name: Start services for performance testing
+      run: |
+        docker compose -f ${{ env.COMPOSE_FILE }} up -d
+        sleep 30
+
+    - name: Install performance testing tools
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y apache2-utils
+
+    - name: Run performance tests
+      run: |
+        echo "Running performance tests..."
+        
+        # Test backend API performance
+        ab -n 100 -c 10 http://localhost/api/health/
+        ab -n 50 -c 5 http://localhost/api/problems/
+        
+        # Test frontend performance
+        ab -n 100 -c 10 http://localhost:3000/
+        
+        echo "Performance tests completed ✓"
+
+    - name: Cleanup performance test
+      if: always()
+      run: |
+        docker compose -f ${{ env.COMPOSE_FILE }} down -v

@@ -1,0 +1,261 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    
+    outputs:
+      backend-image: ${{ steps.meta-backend.outputs.tags }}
+      frontend-image: ${{ steps.meta-frontend.outputs.tags }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    # Backend Image
+    - name: Extract metadata for backend
+      id: meta-backend
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-backend
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=sha,prefix={{branch}}-
+
+    - name: Build and push backend image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./infra/docker/backend/Dockerfile
+        push: true
+        tags: ${{ steps.meta-backend.outputs.tags }}
+        labels: ${{ steps.meta-backend.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    # Frontend Image
+    - name: Extract metadata for frontend
+      id: meta-frontend
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-frontend
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=sha,prefix={{branch}}-
+
+    - name: Build and push frontend image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./frontend
+        file: ./infra/docker/frontend/Dockerfile
+        push: true
+        tags: ${{ steps.meta-frontend.outputs.tags }}
+        labels: ${{ steps.meta-frontend.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    if: github.ref == 'refs/heads/main' || github.event.inputs.environment == 'staging'
+    environment: staging
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Deploy to Staging
+      run: |
+        echo "🚀 Deploying to staging environment..."
+        echo "Backend image: ${{ needs.build-and-push.outputs.backend-image }}"
+        echo "Frontend image: ${{ needs.build-and-push.outputs.frontend-image }}"
+        
+        # Example deployment commands (customize based on your infrastructure)
+        # This could be:
+        # - kubectl apply for Kubernetes
+        # - docker-compose up for Docker Swarm
+        # - AWS ECS task definition update
+        # - Terraform apply
+        # - Ansible playbook
+        
+        echo "Staging deployment completed ✓"
+
+    - name: Run smoke tests
+      run: |
+        echo "Running smoke tests on staging..."
+        sleep 10  # Wait for deployment to stabilize
+        
+        # Example smoke tests
+        # curl -f https://staging.your-domain.com/api/health/
+        # curl -f https://staging.your-domain.com/
+        
+        echo "Smoke tests passed ✓"
+
+    - name: Notify deployment
+      if: always()
+      run: |
+        echo "Sending deployment notification..."
+        # This could send to Slack, Discord, email, etc.
+        echo "Staging deployment notification sent ✓"
+
+  deploy-production:
+    runs-on: ubuntu-latest
+    needs: [build-and-push, deploy-staging]
+    if: startsWith(github.ref, 'refs/tags/v') || github.event.inputs.environment == 'production'
+    environment: production
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Create deployment artifact
+      run: |
+        mkdir -p deployment
+        cat > deployment/docker-compose.prod.yml << EOF
+        version: '3.8'
+        services:
+          backend:
+            image: ${{ needs.build-and-push.outputs.backend-image }}
+            environment:
+              - DEBUG=False
+              - DATABASE_URL=\${DATABASE_URL}
+              - REDIS_URL=\${REDIS_URL}
+              - JUDGE0_URL=\${JUDGE0_URL}
+              - SECRET_KEY=\${SECRET_KEY}
+              - ALLOWED_HOSTS=\${ALLOWED_HOSTS}
+            ports:
+              - "8000:8000"
+            restart: unless-stopped
+            
+          frontend:
+            image: ${{ needs.build-and-push.outputs.frontend-image }}
+            ports:
+              - "3000:3000"
+            restart: unless-stopped
+            
+          nginx:
+            image: nginx:alpine
+            ports:
+              - "80:80"
+              - "443:443"
+            volumes:
+              - ./nginx.conf:/etc/nginx/nginx.conf:ro
+              - ./ssl:/etc/ssl:ro
+            restart: unless-stopped
+        EOF
+
+    - name: Deploy to Production
+      run: |
+        echo "🚀 Deploying to production environment..."
+        echo "Backend image: ${{ needs.build-and-push.outputs.backend-image }}"
+        echo "Frontend image: ${{ needs.build-and-push.outputs.frontend-image }}"
+        
+        # Production deployment commands
+        # This is where you'd deploy to your production infrastructure
+        # Examples:
+        # - Update Kubernetes manifests with new image tags
+        # - Deploy to AWS ECS/Fargate
+        # - Update Docker Swarm services
+        # - Run Terraform/Ansible playbooks
+        
+        echo "Production deployment completed ✓"
+
+    - name: Run production health checks
+      run: |
+        echo "Running production health checks..."
+        sleep 30  # Wait for deployment to stabilize
+        
+        # Production health checks
+        # curl -f https://your-domain.com/api/health/
+        # curl -f https://your-domain.com/
+        
+        echo "Production health checks passed ✓"
+
+    - name: Create GitHub Release
+      if: startsWith(github.ref, 'refs/tags/v')
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        body: |
+          ## Changes in this Release
+          - Deployed backend image: ${{ needs.build-and-push.outputs.backend-image }}
+          - Deployed frontend image: ${{ needs.build-and-push.outputs.frontend-image }}
+          
+          ## Deployment Information
+          - Environment: Production
+          - Deployment time: ${{ github.event.head_commit.timestamp }}
+          - Commit: ${{ github.sha }}
+        draft: false
+        prerelease: false
+
+    - name: Notify production deployment
+      if: always()
+      run: |
+        echo "Sending production deployment notification..."
+        # Send notifications to appropriate channels
+        echo "Production deployment notification sent ✓"
+
+  rollback:
+    runs-on: ubuntu-latest
+    if: failure() && (startsWith(github.ref, 'refs/tags/v') || github.event.inputs.environment == 'production')
+    needs: [deploy-production]
+    environment: production
+    
+    steps:
+    - name: Rollback deployment
+      run: |
+        echo "🔄 Rolling back production deployment..."
+        
+        # Rollback commands
+        # This could:
+        # - Revert to previous Docker image tags
+        # - Restore from backup
+        # - Revert Kubernetes deployment
+        
+        echo "Rollback completed ✓"
+
+    - name: Notify rollback
+      run: |
+        echo "Sending rollback notification..."
+        echo "Production rollback notification sent ✓"

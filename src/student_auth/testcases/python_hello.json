@@ -1,0 +1,12 @@
+{
+  "test_cases": [
+    {
+      "test_case_no": 1,
+      "stdin": "\n",
+      "expected_output": "Hello, World!\n",
+      "is_visible": true,
+      "group": "basic",
+      "weight": 1
+    }
+  ]
+}

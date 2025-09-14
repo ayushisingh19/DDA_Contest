@@ -1,0 +1,21 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Test Ended - DDA Contests</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="min-h-screen bg-slate-900 text-slate-100 flex items-center justify-center p-6">
+  <div class="max-w-xl w-full bg-slate-800/80 border border-slate-700 rounded-2xl p-8 text-center shadow-2xl">
+    <div class="text-3xl font-bold mb-2">The test has ended</div>
+    {% if ended_at %}
+      <div class="text-slate-300 mb-6">Ended at: {{ ended_at|date:'Y-m-d H:i:s T' }}</div>
+    {% endif %}
+    <p class="text-slate-300 mb-8">You cannot enter the contest page again.</p>
+    <a href="{% url 'home' %}" class="inline-block px-5 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-500 font-semibold">Go to Home</a>
+  </div>
+</body>
+</html>

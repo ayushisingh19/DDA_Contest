@@ -1,0 +1,61 @@
+{% load static %}
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>{{ contest.name }} — Leaderboard</title>
+  <style>
+    body { margin:0; font-family:system-ui, -apple-system, Segoe UI, Roboto; background:#f8fafc; }
+    .container { max-width:1100px; margin:24px auto; padding:0 16px; }
+    .card { background:#fff; border-radius:12px; padding:16px; box-shadow:0 1px 3px rgba(0,0,0,.08); }
+    table { width:100%; border-collapse:collapse; }
+    th, td { padding:10px 12px; border-bottom:1px solid #e5e7eb; text-align:left; }
+    th { background:#f1f5f9; }
+    .row { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+    .btn { display:inline-block; padding:10px 14px; border-radius:8px; border:none; background:#2563eb; color:#fff; text-decoration:none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <h2 style="margin:0">{{ contest.name }} — Leaderboard</h2>
+      <div>
+        <a class="btn" href="{% url 'admin_leaderboard_csv' contest.id %}">Export CSV</a>
+        <a class="btn" href="{% url 'admin_dashboard' %}" style="background:#334155">Back</a>
+      </div>
+    </div>
+    <div class="card">
+      <table>
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Student</th>
+            <th>Email</th>
+            <th>Solved</th>
+            <th>Points</th>
+            <th>Total Best Time (ms)</th>
+            <th>Total Time (s)</th>
+            <th>First Solve At</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for r in rows %}
+          <tr>
+            <td>{{ r.rank }}</td>
+            <td>{{ r.name }}</td>
+            <td>{{ r.email }}</td>
+            <td>{{ r.solved }}</td>
+            <td>{{ r.points }}</td>
+            <td>{{ r.total_best_time_ms }}</td>
+            <td>{{ r.total_time_s }}</td>
+            <td>{% if r.first_solve_at %}{{ r.first_solve_at|date:'Y-m-d H:i:s' }}{% else %}-{% endif %}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="8" style="text-align:center; padding:16px;">No solved submissions yet.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>

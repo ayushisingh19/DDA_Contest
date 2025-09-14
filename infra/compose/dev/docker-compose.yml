@@ -1,0 +1,206 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-coding}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  judge0:
+    image: judge0/judge0:latest
+    environment:
+      PORT: 2358
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/${POSTGRES_DB:-coding}
+      REDIS_URL: redis://redis:6379/2
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      RUN_MIGRATIONS: "true"
+      ALLOW_ORIGIN: "*"
+      RAILS_ENV: development
+      ENABLE_WAIT_RESULT: "true"
+      ENABLE_COMPILER_OPTIONS: "false"
+      ENABLE_ISOLATE: "false"
+      ENABLE_COMMAND_LINE_ARGUMENTS: "false"
+    ports:
+      - "2358:2358"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:2358/about || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 20
+      start_period: 60s
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  judge0-worker:
+    image: judge0/judge0:latest
+    command: ["./scripts/workers"]
+    privileged: true
+    volumes:
+      - /tmp:/tmp:rw
+      - /var/log/judge0:/var/log/judge0:rw
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/${POSTGRES_DB:-coding}
+      REDIS_URL: redis://redis:6379/2
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      RAILS_ENV: development
+      ENABLE_ISOLATE: "false"
+      ENABLE_COMPILER_OPTIONS: "false"
+      ENABLE_COMMAND_LINE_ARGUMENTS: "false"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      judge0:
+        condition: service_healthy
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ../../..
+      dockerfile: infra/docker/backend/Dockerfile
+    command: ["/bin/sh", "-c", "cd /workspace && python 'src/student_auth/manage.py' runserver 0.0.0.0:8000"]
+    environment:
+      DJANGO_SETTINGS_MODULE: student_auth.settings
+      SECRET_KEY: dev-insecure-key-change-me
+      DEBUG: "1"
+      ALLOWED_HOSTS: "*"
+      POSTGRES_DB: ${POSTGRES_DB:-coding}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_HOST: db
+      POSTGRES_PORT: "5432"
+      JUDGE0_URL: http://judge0:2358
+      JUDGE0_AUTH_TOKEN: ${JUDGE0_AUTH_TOKEN:-}
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
+    depends_on:
+      db:
+        condition: service_healthy
+      judge0:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../../..:/workspace
+    working_dir: /workspace
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request;print(urllib.request.urlopen('http://localhost:8000/healthz').read())\""]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  worker:
+    build:
+      context: ../../..
+      dockerfile: infra/docker/backend/Dockerfile
+    command: ["celery", "-A", "student_auth", "worker", "-l", "info", "-P", "solo"]
+    environment:
+      DJANGO_SETTINGS_MODULE: student_auth.settings
+      SECRET_KEY: dev-insecure-key-change-me
+      DEBUG: "1"
+      ALLOWED_HOSTS: "*"
+      POSTGRES_DB: ${POSTGRES_DB:-coding}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_HOST: db
+      POSTGRES_PORT: "5432"
+      JUDGE0_URL: http://judge0:2358
+      JUDGE0_AUTH_TOKEN: ${JUDGE0_AUTH_TOKEN:-}
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
+    depends_on:
+      db:
+        condition: service_healthy
+      judge0:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ../../..:/workspace
+    working_dir: "/workspace/src/student_auth"
+    restart: unless-stopped
+
+  beat:
+    build:
+      context: ../../..
+      dockerfile: infra/docker/backend/Dockerfile
+    command: ["celery", "-A", "student_auth", "beat", "-l", "info"]
+    environment:
+      DJANGO_SETTINGS_MODULE: student_auth.settings
+      SECRET_KEY: dev-insecure-key-change-me
+      DEBUG: "1"
+      ALLOWED_HOSTS: "*"
+      POSTGRES_DB: ${POSTGRES_DB:-coding}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_HOST: db
+      POSTGRES_PORT: "5432"
+      JUDGE0_URL: http://judge0:2358
+      JUDGE0_AUTH_TOKEN: ${JUDGE0_AUTH_TOKEN:-}
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
+    depends_on:
+      db:
+        condition: service_healthy
+      judge0:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ../../..:/workspace
+    working_dir: "/workspace/src/student_auth"
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ../../..
+      dockerfile: infra/docker/frontend/Dockerfile
+    environment:
+      VITE_API_BASE_URL: http://localhost/api
+    ports:
+      - "5173:5173"
+    volumes:
+      - ../../..:/workspace
+    working_dir: /workspace/frontend
+    command: ["sh", "-c", "npm install && npm run dev -- --host"]
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ../../docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - backend
+      - frontend
+
+volumes:
+  db_data:

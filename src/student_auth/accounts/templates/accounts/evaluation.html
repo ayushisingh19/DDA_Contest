@@ -1,0 +1,17 @@
+{% load static %}
+<div class="card">
+  <h3>Evaluation</h3>
+  <div class="row">
+    <select id="eval_contest">
+      {% for c in contests %}
+        <option value="{{ c.id }}">{{ c.name }} (id {{ c.id }})</option>
+      {% endfor %}
+    </select>
+    <button class="btn" onclick="startEval()">Start Evaluation</button>
+    <button class="btn" onclick="loadScoreboard()">Load Scoreboard</button>
+  </div>
+
+  <div id="scoreboard" style="margin-top:16px;"></div>
+</div>
+
+<script type="module" src="{% static 'build/evaluation.js' %}"></script>

@@ -1,0 +1,553 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sage Coding Competition - Decode Data Academy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: #0f0f23;
+        color: #ffffff;
+      }
+
+      /* Animated coding background */
+      .coding-background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        background: linear-gradient(135deg, #0f0f23 0%, #1a1a3a 100%);
+        overflow: hidden;
+      }
+
+      .coding-background::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: radial-gradient(
+            circle at 20% 80%,
+            rgba(120, 119, 198, 0.3) 0%,
+            transparent 50%
+          ),
+          radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.15) 0%, transparent 50%),
+          radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.1) 0%, transparent 50%);
+      }
+
+      .code-pattern {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23a855f7' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        opacity: 0.4;
+      }
+
+      .competition-hero {
+        background: rgba(15, 15, 35, 0.9);
+        backdrop-filter: blur(10px);
+        position: relative;
+      }
+
+      .stat-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+      }
+
+      .stat-card:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateY(-5px);
+      }
+
+      .content-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+      }
+
+      .prize-card {
+        background: rgba(168, 85, 247, 0.1);
+        border: 1px solid rgba(168, 85, 247, 0.3);
+        backdrop-filter: blur(10px);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Animated coding background -->
+    <div class="coding-background">
+      <div class="code-pattern"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-gray-900 border-b border-gray-800 sticky top-0 z-50">
+      <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+        <a href="{% url 'home' %}" class="flex items-center space-x-3">
+          <div
+            class="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg flex items-center justify-center"
+          >
+            <i data-lucide="code" class="w-5 h-5 text-white"></i>
+          </div>
+          <div>
+            <div class="text-xl font-bold text-white">DDA Contests</div>
+            <div class="text-xs text-gray-400">Decode Data Academy</div>
+          </div>
+        </a>
+
+        <div class="hidden md:flex items-center space-x-8 font-medium">
+          <a href="{% url 'home' %}" class="text-gray-300 hover:text-white transition">Home</a>
+          <a href="#" class="text-gray-300 hover:text-white transition">About</a>
+          <a href="#" class="text-gray-300 hover:text-white transition">Contact</a>
+          <a
+            href="{% url 'contest' %}"
+            class="flex items-center space-x-1 text-purple-400 hover:text-purple-300 transition"
+          >
+            <span>Contests</span>
+          </a>
+        </div>
+
+        <!-- Login Button -->
+        <div class="flex items-center space-x-4">
+          {% if student %}
+          <span class="text-gray-300">Welcome, {{ student.name }}</span>
+          <a href="{% url 'logout' %}" class="text-red-400 hover:text-red-300">Logout</a>
+          {% else %}
+          <a
+            href="{% url 'login' %}"
+            class="bg-yellow-500 text-black px-6 py-2 rounded-lg font-semibold hover:bg-yellow-400 transition"
+          >
+            Login
+          </a>
+          {% endif %}
+        </div>
+
+        <button id="mobile-menu-button" class="md:hidden text-white">
+          <i data-lucide="menu"></i>
+        </button>
+      </nav>
+      <!-- Mobile Menu -->
+      <div id="mobile-menu" class="hidden md:hidden px-6 pb-4 space-y-2">
+        <a href="{% url 'home' %}" class="block text-gray-300 hover:text-white py-2">Home</a>
+        <a href="#" class="block text-gray-300 hover:text-white py-2">About</a>
+        <a href="#" class="block text-gray-300 hover:text-white py-2">Contact</a>
+        <a href="{% url 'contest' %}" class="block text-purple-400 py-2">Contests</a>
+        <div class="border-t border-gray-700 pt-4">
+          {% if student %}
+          <span class="block text-gray-300 py-2">Welcome, {{ student.name }}</span>
+          <a href="{% url 'logout' %}" class="block text-red-400 hover:text-red-300 py-2">Logout</a>
+          {% else %}
+          <a
+            href="{% url 'login' %}"
+            class="block text-center bg-yellow-500 text-black px-4 py-2 rounded-lg font-semibold hover:bg-yellow-400 transition"
+            >Login</a
+          >
+          {% endif %}
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <!-- Competition Hero Section -->
+      <section class="competition-hero text-white py-12 md:py-20">
+        <div class="container mx-auto px-6 text-center">
+          <p class="text-yellow-400 font-semibold text-lg mb-2">
+            Presented by Decode Data Academy & Sage University
+          </p>
+
+          <!-- Contest Status -->
+          <div
+            class="inline-flex items-center space-x-2 bg-red-500/20 border border-red-500/30 rounded-full px-4 py-2 mb-4"
+          >
+            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <span class="text-green-400 font-semibold text-sm">Contest upcoming</span>
+          </div>
+
+          <h1 class="text-4xl md:text-6xl font-extrabold leading-tight mb-4">
+            Sage Coding Competition
+          </h1>
+          <p class="text-lg md:text-xl text-gray-200 max-w-3xl mx-auto mb-8">
+            Test your mastery of algorithms and dynamic programming in the ultimate coding showdown.
+          </p>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-8">
+            <div class="stat-card p-6 rounded-xl">
+              <i data-lucide="calendar" class="h-8 w-8 mx-auto mb-2 text-yellow-400"></i>
+              <h3 class="text-xl font-bold">September 15, 2025</h3>
+              <p class="text-gray-300">10:00 UTC</p>
+            </div>
+            <div class="stat-card p-6 rounded-xl">
+              <i data-lucide="award" class="h-8 w-8 mx-auto mb-2 text-yellow-400"></i>
+              <h3 class="text-xl font-bold">₹5,000 Prize Pool</h3>
+              <p class="text-gray-300">Cash & Goodies</p>
+            </div>
+            <div class="stat-card p-6 rounded-xl">
+              <i data-lucide="users" class="h-8 w-8 mx-auto mb-2 text-yellow-400"></i>
+              <h3 class="text-xl font-bold">Open to All Students</h3>
+              <p class="text-gray-300">University Level</p>
+            </div>
+          </div>
+
+          <!-- Simple Start Button -->
+          <div class="text-center">
+            <p class="text-gray-300 mt-4 text-sm">
+              Make sure to read the competition details above before starting
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Competition Details Section -->
+      <section class="py-12">
+        <div class="container mx-auto px-6">
+          <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Left Column -->
+            <div class="content-card p-8 rounded-2xl">
+              <div class="flex items-center space-x-3 mb-6">
+                <div
+                  class="w-12 h-12 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg flex items-center justify-center"
+                >
+                  <i data-lucide="info" class="w-6 h-6 text-white"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-white">About the Competition</h2>
+              </div>
+              <p class="text-gray-300 mb-8 leading-relaxed">
+                The Sage Coding Competition is a premier competitive programming event designed to
+                challenge students with a knack for problem-solving. This year's theme focuses on
+                <span class="text-purple-400 font-semibold"
+                  >dynamic programming and advanced algorithms</span
+                >. Participants will face a series of complex problems that will test both their
+                theoretical knowledge and practical coding skills.
+              </p>
+
+              <div class="space-y-4">
+                <div class="flex items-center space-x-3 mb-4">
+                  <div
+                    class="w-10 h-10 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-lg flex items-center justify-center"
+                  >
+                    <i data-lucide="gift" class="w-5 h-5 text-white"></i>
+                  </div>
+                  <h3 class="text-2xl font-bold text-white">Prizes & Rewards</h3>
+                </div>
+
+                <div class="prize-card p-6 rounded-xl mb-4">
+                  <div class="flex items-start space-x-4">
+                    <div
+                      class="w-10 h-10 bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-lg flex items-center justify-center flex-shrink-0"
+                    >
+                      <i data-lucide="trophy" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <div>
+                      <h4 class="text-yellow-400 font-bold text-lg">1st Place</h4>
+                      <p class="text-white font-semibold">
+                        ₹2,000 Cash + Certificate of Excellence
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="prize-card p-6 rounded-xl mb-4">
+                  <div class="flex items-start space-x-4">
+                    <div
+                      class="w-10 h-10 bg-gradient-to-r from-gray-400 to-gray-500 rounded-lg flex items-center justify-center flex-shrink-0"
+                    >
+                      <i data-lucide="medal" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <div>
+                      <h4 class="text-gray-300 font-bold text-lg">2nd Place</h4>
+                      <p class="text-white font-semibold">₹1500 Cash + Certificate of Excellence</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="prize-card p-6 rounded-xl mb-4">
+                  <div class="flex items-start space-x-4">
+                    <div
+                      class="w-10 h-10 bg-gradient-to-r from-orange-400 to-orange-500 rounded-lg flex items-center justify-center flex-shrink-0"
+                    >
+                      <i data-lucide="award" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <div>
+                      <h4 class="text-orange-400 font-bold text-lg">3rd Place</h4>
+                      <p class="text-white font-semibold">₹1000 Cash + Certificate of Excellence</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="prize-card p-6 rounded-xl">
+                  <div class="flex items-start space-x-4">
+                    <div
+                      class="w-10 h-10 bg-gradient-to-r from-purple-400 to-purple-500 rounded-lg flex items-center justify-center flex-shrink-0"
+                    >
+                      <i data-lucide="users" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <div>
+                      <h4 class="text-purple-400 font-bold text-lg">Top 10 Participants</h4>
+                      <p class="text-white font-semibold">
+                        Exclusive Swag Pack from Decode Data Academy
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="content-card p-8 rounded-2xl">
+              <div class="flex items-center space-x-3 mb-6">
+                <div
+                  class="w-12 h-12 bg-gradient-to-r from-green-500 to-blue-500 rounded-lg flex items-center justify-center"
+                >
+                  <i data-lucide="calendar-clock" class="w-6 h-6 text-white"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-white">Schedule & Rules</h2>
+              </div>
+
+              <div class="space-y-6">
+                <div
+                  class="bg-gradient-to-r from-purple-600/20 to-blue-600/20 p-6 rounded-xl border border-purple-500/30"
+                >
+                  <div class="flex items-center space-x-3 mb-2">
+                    <i data-lucide="user-plus" class="w-5 h-5 text-purple-400"></i>
+                    <h4 class="font-bold text-purple-300 text-lg">Registration Period</h4>
+                  </div>
+                  <p class="text-white font-semibold">August 08, 2025 - August 13, 2025</p>
+                </div>
+
+                <div
+                  class="bg-gradient-to-r from-yellow-600/20 to-orange-600/20 p-6 rounded-xl border border-yellow-500/30"
+                >
+                  <div class="flex items-center space-x-3 mb-2">
+                    <i data-lucide="play-circle" class="w-5 h-5 text-yellow-400"></i>
+                    <h4 class="font-bold text-yellow-300 text-lg">Competition Day</h4>
+                  </div>
+                  <p class="text-white font-semibold">September 15, 2025</p>
+                  <p class="text-gray-300">10:00 UTC - 13:00 UTC (3 hours)</p>
+                </div>
+
+                <div
+                  class="bg-gradient-to-r from-green-600/20 to-emerald-600/20 p-6 rounded-xl border border-green-500/30"
+                >
+                  <div class="flex items-center space-x-3 mb-2">
+                    <i data-lucide="megaphone" class="w-5 h-5 text-green-400"></i>
+                    <h4 class="font-bold text-green-300 text-lg">Results Announcement</h4>
+                  </div>
+                  <p class="text-white font-semibold">August 16, 2025</p>
+                </div>
+              </div>
+
+              <div class="mt-8">
+                <div class="flex items-center space-x-3 mb-4">
+                  <div
+                    class="w-10 h-10 bg-gradient-to-r from-pink-500 to-red-500 rounded-lg flex items-center justify-center"
+                  >
+                    <i data-lucide="graduation-cap" class="w-5 h-5 text-white"></i>
+                  </div>
+                  <h3 class="text-2xl font-bold text-white">Eligibility</h3>
+                </div>
+                <div
+                  class="bg-gradient-to-r from-pink-600/20 to-red-600/20 p-6 rounded-xl border border-pink-500/30"
+                >
+                  <p class="text-gray-300 leading-relaxed">
+                    The competition is open to all
+                    <span class="text-pink-400 font-semibold"
+                      >undergraduate and postgraduate students</span
+                    >
+                    from any university. Participants must register individually and demonstrate
+                    their coding prowess in this ultimate challenge.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Simple Start Button -->
+          <div class="max-w-4xl mx-auto mt-12">
+            <div class="content-card p-8 rounded-2xl text-center">
+              <h3 class="text-2xl font-bold text-white mb-6">Ready to Start the Contest?</h3>
+
+              <a
+                href="{% url 'problems' %}"
+                class="bg-gradient-to-r from-yellow-400 to-yellow-500 text-purple-900 font-bold px-12 py-4 rounded-lg text-xl hover:from-yellow-500 hover:to-yellow-600 transition-all duration-300 transform hover:scale-105 inline-block mb-4"
+              >
+                🚀 Start Contest Now
+              </a>
+
+              <p class="text-gray-300 text-sm">
+                Good luck! You have 3 hours to complete all problems.
+              </p>
+            </div>
+          </div>
+
+          <!-- Problems and Problem Details removed per request -->
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 border-t border-gray-700">
+      <div class="container mx-auto px-6 py-8">
+        <div class="grid md:grid-cols-4 gap-6">
+          <!-- Company Info -->
+          <div class="md:col-span-1">
+            <div class="flex items-center space-x-3 mb-4">
+              <div class="bg-purple-600 p-2 rounded-lg">
+                <i data-lucide="code-2" class="w-6 h-6 text-white"></i>
+              </div>
+              <div>
+                <h3 class="text-white font-bold text-lg">DDA Contests</h3>
+                <p class="text-gray-400 text-sm">Decode Data Academy</p>
+              </div>
+            </div>
+            <p class="text-gray-400 text-sm leading-relaxed mb-4">
+              Empowering students through competitive programming and coding excellence. Join our
+              community of passionate developers.
+            </p>
+
+            <!-- Social Media Links -->
+            <div class="flex space-x-4">
+              <a href="#" class="text-gray-400 hover:text-purple-500 transition-colors">
+                <i data-lucide="twitter" class="w-5 h-5"></i>
+              </a>
+              <a href="#" class="text-gray-400 hover:text-purple-500 transition-colors">
+                <i data-lucide="linkedin" class="w-5 h-5"></i>
+              </a>
+              <a href="#" class="text-gray-400 hover:text-purple-500 transition-colors">
+                <i data-lucide="github" class="w-5 h-5"></i>
+              </a>
+            </div>
+          </div>
+
+          <!-- Quick Links -->
+          <div>
+            <h4 class="text-white font-semibold text-lg mb-4">QUICK LINKS</h4>
+            <ul class="space-y-2">
+              <li>
+                <a href="{% url 'home' %}" class="text-gray-400 hover:text-white transition-colors"
+                  >Home</a
+                >
+              </li>
+              <li>
+                <a
+                  href="{% url 'contest' %}"
+                  class="text-gray-400 hover:text-white transition-colors"
+                  >Contests</a
+                >
+              </li>
+              <li>
+                <a href="#" class="text-gray-400 hover:text-white transition-colors">Leaderboard</a>
+              </li>
+              <li>
+                <a href="#" class="text-gray-400 hover:text-white transition-colors">About Us</a>
+              </li>
+              <li>
+                <a href="#" class="text-gray-400 hover:text-white transition-colors">Contact</a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Contests -->
+          <div>
+            <h4 class="text-white font-semibold text-lg mb-4">CONTESTS</h4>
+            <ul class="space-y-2">
+              <li>
+                <a href="#" class="text-gray-400 hover:text-white transition-colors"
+                  >Upcoming Contests</a
+                >
+              </li>
+              <li>
+                <a href="#" class="text-gray-400 hover:text-white transition-colors"
+                  >Past Contests</a
+                >
+              </li>
+              <li>
+                <a href="#" class="text-gray-400 hover:text-white transition-colors"
+                  >Practice Problems</a
+                >
+              </li>
+              <li>
+                <a href="#" class="text-gray-400 hover:text-white transition-colors"
+                  >Contest Rules</a
+                >
+              </li>
+              <li><a href="#" class="text-gray-400 hover:text-white transition-colors">FAQ</a></li>
+            </ul>
+          </div>
+
+          <!-- Contact Info -->
+          <div>
+            <h4 class="text-white font-semibold text-lg mb-6">CONTACT INFO</h4>
+            <div class="space-y-4">
+              <div class="flex items-center space-x-3">
+                <i data-lucide="mail" class="w-5 h-5 text-purple-500"></i>
+                <a
+                  href="mailto:contact@decodedata.academy"
+                  class="text-gray-400 hover:text-white transition-colors"
+                >
+                  contact@decodedata.academy
+                </a>
+              </div>
+              <div class="flex items-center space-x-3">
+                <i data-lucide="phone" class="w-5 h-5 text-purple-500"></i>
+                <span class="text-gray-400">+917489269422</span>
+              </div>
+              <div class="flex items-center space-x-3">
+                <i data-lucide="map-pin" class="w-5 h-5 text-purple-500"></i>
+                <span class="text-gray-400"
+                  >Tower 90 2nd - Floor, Anoop, 2, MP Nagar Zone-I, Zone-II, Maharana Pratap Nagar,
+                  Bhopal, Madhya Pradesh 462011</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Footer -->
+        <div class="border-t border-gray-700 mt-12 pt-8">
+          <div class="flex flex-col md:flex-row justify-between items-center">
+            <p class="text-gray-400 text-sm mb-4 md:mb-0">
+              &copy; 2025 Decode Data Academy. All rights reserved.
+            </p>
+
+            <!-- Footer Links -->
+            <div class="flex space-x-6">
+              <a href="#" class="text-gray-400 hover:text-white transition-colors text-sm"
+                >Privacy Policy</a
+              >
+              <a href="#" class="text-gray-400 hover:text-white transition-colors text-sm"
+                >Terms of Service</a
+              >
+              <a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">Help</a>
+            </div>
+          </div>
+
+          <!-- Powered by section -->
+          <div class="text-center mt-6">
+            <p class="text-gray-500 text-sm flex items-center justify-center space-x-2">
+              <i data-lucide="heart" class="w-4 h-4 text-red-500"></i>
+              <span
+                >Powered by passion for coding excellence • 11+ years of tech education
+                experience</span
+              >
+            </p>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script type="module" src="{% static 'build/contest.js' %}"></script>
+  </body>
+</html>

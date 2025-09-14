@@ -1,0 +1,16 @@
+line-length = 100
+
+[lint]
+select = ["E", "F"]
+ignore = ["E501"] # relax long lines for now
+# Top-level exclude patterns
+exclude = [
+  "env",
+  "venv",
+  "frontend",
+  "new app",
+  "tools",
+  "tests",
+  "backend",
+  "docs",
+]

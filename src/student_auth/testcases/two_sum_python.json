@@ -1,0 +1,25 @@
+{
+  "test_cases": [
+    {
+      "stdin": "4\n2 7 11 15\n9\n",
+      "expected_output": "0 1\n",
+      "group": "basic",
+      "weight": 1,
+      "is_visible": true
+    },
+    {
+      "stdin": "3\n3 2 4\n6\n",
+      "expected_output": "1 2\n",
+      "group": "basic",
+      "weight": 1,
+      "is_visible": true
+    },
+    {
+      "stdin": "2\n3 3\n6\n",
+      "expected_output": "0 1\n",
+      "group": "hidden",
+      "weight": 1,
+      "is_visible": false
+    }
+  ]
+}
