@@ -1,0 +1,4 @@
+services:
+  web:
+    ports:
+      - "127.0.0.1:8080:80"  # Bind Nginx to loopback; front with Apache on host
