@@ -15,6 +15,12 @@ urlpatterns = [
     path("contest/", views.contest, name="contest"),
     path("contest/junior/", views.contest_junior, name="contest_junior"),
     path("contest/senior/", views.contest_senior, name="contest_senior"),
+    # Highlights
+    path("highlights/sage/", views.sage_highlights, name="sage_highlights"),
+    # Practice
+    path("practice/", views.practice_home, name="practice_home"),
+    path("practice/question/<int:question_id>/", views.practice_question, name="practice_question"),
+    path("practice/subtopic/<int:subtopic_id>/", views.practice_subtopic, name="practice_subtopic"),
     # Admin URLs (staff only)
     path("admin_dashboard/", views.admin_dashboard, name="admin_dashboard"),
     path("create_contest/", views.create_contest, name="create_contest"),

@@ -1,0 +1,1 @@
+Place event photos here. Example: /static/img/sage_event_1.jpg

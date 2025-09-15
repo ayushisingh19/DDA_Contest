@@ -1,0 +1,247 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Event Highlights - DDA Contests</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* Winners Podium (Hex + Laurel + Purple Ribbon) */
+    .podium {display:flex;align-items:flex-end;justify-content:center;gap:2.75rem;}
+    .podium-item {position:relative;text-align:center;}
+    .podium-item.main {transform:translateY(-16px);} /* elevate #1 */
+  .podium-item.main .hex {transform:translateX(-50%) scale(1.12);}
+    .podium-item .name {margin-top:.55rem;font-weight:600;font-size:.8rem;max-width:140px;}
+    .hex-badge {position:relative;width:170px;height:170px;}
+    .hex-badge svg {position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
+    .hex {position:absolute;top:22px;left:50%;transform:translateX(-50%);width:105px;height:118px;background:linear-gradient(135deg,#ffd970,#f7b733);clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);display:flex;align-items:center;justify-content:center;font-size:2.15rem;font-weight:800;color:#2a1900;border:4px solid #f3c24f;box-shadow:0 6px 14px rgba(0,0,0,.5),0 0 0 6px rgba(255,217,112,.15);text-shadow:0 1px 2px rgba(255,255,255,.4);}
+    .podium-ribbon {fill:#5f259f;stroke:#7b3dc6;stroke-width:3;filter:drop-shadow(0 4px 6px rgba(0,0,0,.45));}
+    .podium-ribbon-tail {fill:#551f90;stroke:#7b3dc6;stroke-width:3;}
+    .laurel {fill:#f7d977;stroke:#e0b938;stroke-width:5;}
+    .podium-item.rank-2 .hex {background:linear-gradient(135deg,#e2e2e2,#c9c9c9);color:#1a1a1a;border-color:#d5d5d5;box-shadow:0 6px 14px rgba(0,0,0,.4),0 0 0 6px rgba(210,210,210,.15);} 
+    .podium-item.rank-3 .hex {background:linear-gradient(135deg,#c67a2d,#f2b066);color:#1d1205;border-color:#d8933f;box-shadow:0 6px 14px rgba(0,0,0,.4),0 0 0 6px rgba(230,160,80,.15);} 
+    @media (max-width:640px){
+      .hex-badge {width:140px;height:150px;}
+      .hex {width:90px;height:102px;font-size:1.85rem;}
+      .podium {gap:1.75rem;}
+    }
+  </style>
+</head>
+<body class="bg-gray-900 text-white">
+  <header class="bg-gray-900 border-b border-gray-800 sticky top-0 z-50">
+    <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+      <a href="{% url 'home' %}" class="flex items-center space-x-3">Home</a>
+        <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
+          <i data-lucide="sparkles" class="w-5 h-5 text-white"></i>
+        </div>
+        <div>
+          <div class="text-xl font-bold text-white">DDA Contests</div>
+          <div class="text-xs text-gray-400">Event Highlights</div>
+        </div>
+      </a>
+      
+      <a href="{% url 'contest' %}" class="text-gray-300 hover:text-white">Contests</a>
+    </nav>
+  </header>
+
+  <main class="container mx-auto px-6 py-10">
+    <h1 class="text-4xl font-extrabold mb-3">Sage Coding Competition — Highlights</h1>
+    <p class="text-gray-300 mb-8">Thanks to everyone who joined! Here are a few snapshots and the winning moment. More coming soon.</p>
+
+    <!-- Event Recap -->
+    <section class="bg-gray-800/60 border border-gray-700 rounded-2xl p-6 mb-8">
+      <h2 class="text-2xl font-bold mb-3">Event Overview</h2>
+      <p class="text-gray-300 leading-relaxed">
+        On <span class="font-semibold">15th September 2025</span>, a grand Coding Competition was organized at
+        <span class="font-semibold">Sage University, Bhopal</span>, by Decode Data Academy. The event witnessed an overwhelming
+        participation of <span class="font-semibold">100+ students</span> from different backgrounds, showcasing their programming skills and
+        problem-solving abilities.
+      </p>
+      <p class="text-gray-300 leading-relaxed mt-3">
+        The competition was held between <span class="font-semibold">10:00 AM to 11:00 AM</span>, where students were challenged with
+        innovative coding problems designed to test logic, speed, and accuracy. The atmosphere was filled with excitement,
+        energy, and a spirit of healthy competition.
+      </p>
+      <p class="text-gray-300 leading-relaxed mt-3">
+        The event not only provided a platform for budding coders to exhibit their talent but also encouraged collaboration,
+        creativity, and critical thinking among participants. Such initiatives by Decode Data Academy play a vital role in
+        nurturing young developers and preparing them for future technological challenges.
+      </p>
+    </section>
+
+  <!-- Gallery (horizontal scroll with five images) -->
+    <section class="mb-16">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-2xl font-bold flex items-center gap-2"><i data-lucide="images" class="w-6 h-6 text-purple-400"></i> Event Moments</h2>
+        <div class="text-xs text-gray-400">Scroll ▶</div>
+      </div>
+      <div class="overflow-x-auto pb-2 no-scrollbar" style="scroll-snap-type:x mandatory;" id="galleryStrip">
+        <div class="flex gap-5 min-w-max">
+          {% for img in gallery_images %}
+          <div class="relative w-64 sm:w-72 h-72 sm:h-80 rounded-xl overflow-hidden border border-gray-700 bg-gray-800 shadow-lg scroll-snap-align-start flex-shrink-0">
+            <img src="{% static 'img/sage_event_'|add:img|add:'.jpg' %}" alt="Event photo {{ img }}" class="w-full h-full object-cover" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'flex items-center justify-center h-full text-gray-500 text-sm bg-gray-800','innerText':'Photo coming soon'}))" />
+            <div class="absolute inset-x-0 bottom-0 bg-black/55 backdrop-blur px-3 py-2 flex items-center justify-between text-[11px] text-gray-200">
+              <span class="font-medium">Moment {{ img }}</span>
+              <button class="px-2 py-1 rounded-md bg-purple-600 hover:bg-purple-500 text-white" onclick="openLightbox('{{ img }}')">View</button>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
+    <!-- Winners Podium (compact style with list) -->
+    <section class="mb-20">
+      <h2 class="text-2xl font-bold mb-6 flex items-center gap-2"><i data-lucide="trophy" class="w-6 h-6 text-yellow-400"></i> Winners Podium</h2>
+      <div class="grid md:grid-cols-2 gap-10">
+        <!-- Junior Track -->
+        <div class="bg-gradient-to-b from-purple-800/40 to-purple-900/10 rounded-2xl border border-purple-600/30 p-6">
+          <h3 class="font-semibold text-purple-200 mb-4 flex items-center gap-2"><i data-lucide="rocket" class="w-4 h-4"></i> Junior Track</h3>
+          <div class="podium mb-8">
+            {# Order: 2,1,3 for visual layout #}
+            {% for w in junior_winners %}{% if w.rank == 2 %}
+              <div class="podium-item rank-2">
+                <div class="hex-badge">
+                  <svg viewBox="0 0 300 260" aria-hidden="true">
+                    <!-- Laurels -->
+                    <path class="laurel" d="M70 55 C50 95,52 165,74 205 C95 165,98 95,80 55 Z" />
+                    <path class="laurel" d="M230 55 C250 95,248 165,226 205 C205 165,202 95,220 55 Z" />
+                    <!-- Ribbon body -->
+                    <path class="podium-ribbon" d="M85 150 L215 150 Q225 170 215 190 L85 190 Q75 170 85 150 Z" />
+                    <!-- Ribbon tails -->
+                    <path class="podium-ribbon-tail" d="M95 190 L80 235 L115 200 Z" />
+                    <path class="podium-ribbon-tail" d="M205 190 L220 235 L185 200 Z" />
+                  </svg>
+                  <div class="hex">{{ w.rank }}</div>
+                </div>
+                <div class="name">{{ w.name }}</div>
+              </div>
+            {% endif %}{% endfor %}
+            {% for w in junior_winners %}{% if w.rank == 1 %}
+              <div class="podium-item main rank-1">
+                <div class="hex-badge">
+                  <svg viewBox="0 0 300 260" aria-hidden="true">
+                    <path class="laurel" d="M70 55 C50 95,52 165,74 205 C95 165,98 95,80 55 Z" />
+                    <path class="laurel" d="M230 55 C250 95,248 165,226 205 C205 165,202 95,220 55 Z" />
+                    <path class="podium-ribbon" d="M85 150 L215 150 Q225 170 215 190 L85 190 Q75 170 85 150 Z" />
+                    <path class="podium-ribbon-tail" d="M95 190 L80 235 L115 200 Z" />
+                    <path class="podium-ribbon-tail" d="M205 190 L220 235 L185 200 Z" />
+                  </svg>
+                  <div class="hex">{{ w.rank }}</div>
+                </div>
+                <div class="name">{{ w.name }}</div>
+              </div>
+            {% endif %}{% endfor %}
+            {% for w in junior_winners %}{% if w.rank == 3 %}
+              <div class="podium-item rank-3">
+                <div class="hex-badge">
+                  <svg viewBox="0 0 300 260" aria-hidden="true">
+                    <path class="laurel" d="M70 55 C50 95,52 165,74 205 C95 165,98 95,80 55 Z" />
+                    <path class="laurel" d="M230 55 C250 95,248 165,226 205 C205 165,202 95,220 55 Z" />
+                    <path class="podium-ribbon" d="M85 150 L215 150 Q225 170 215 190 L85 190 Q75 170 85 150 Z" />
+                    <path class="podium-ribbon-tail" d="M95 190 L80 235 L115 200 Z" />
+                    <path class="podium-ribbon-tail" d="M205 190 L220 235 L185 200 Z" />
+                  </svg>
+                  <div class="hex">{{ w.rank }}</div>
+                </div>
+                <div class="name">{{ w.name }}</div>
+              </div>
+            {% endif %}{% endfor %}
+          </div>
+          <ul class="text-xs divide-y divide-purple-600/30 rounded-lg overflow-hidden border border-purple-600/30">
+            <li class="grid grid-cols-3 bg-purple-900/40 px-3 py-2 font-semibold text-purple-100 text-[11px] tracking-wide uppercase"> <span>Rank</span><span class="col-span-2">Name</span></li>
+            {% for w in junior_winners %}
+              <li class="grid grid-cols-3 px-3 py-2 text-purple-100/90 text-sm bg-purple-900/20 hover:bg-purple-800/30 transition">
+                <span>#{{ w.rank }}</span>
+                <span class="col-span-2">{{ w.name }}</span>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+        <!-- Senior Track -->
+        <div class="bg-gradient-to-b from-indigo-800/40 to-indigo-900/10 rounded-2xl border border-indigo-600/30 p-6">
+          <h3 class="font-semibold text-indigo-200 mb-4 flex items-center gap-2"><i data-lucide="cpu" class="w-4 h-4"></i> Senior Track</h3>
+          <div class="podium mb-8">
+            {% for w in senior_winners %}{% if w.rank == 2 %}
+              <div class="podium-item rank-2">
+                <div class="hex-badge">
+                  <svg viewBox="0 0 300 260" aria-hidden="true">
+                    <path class="laurel" d="M70 55 C50 95,52 165,74 205 C95 165,98 95,80 55 Z" />
+                    <path class="laurel" d="M230 55 C250 95,248 165,226 205 C205 165,202 95,220 55 Z" />
+                    <path class="podium-ribbon" d="M85 150 L215 150 Q225 170 215 190 L85 190 Q75 170 85 150 Z" />
+                    <path class="podium-ribbon-tail" d="M95 190 L80 235 L115 200 Z" />
+                    <path class="podium-ribbon-tail" d="M205 190 L220 235 L185 200 Z" />
+                  </svg>
+                  <div class="hex">{{ w.rank }}</div>
+                </div>
+                <div class="name">{{ w.name }}</div>
+              </div>
+            {% endif %}{% endfor %}
+            {% for w in senior_winners %}{% if w.rank == 1 %}
+              <div class="podium-item main rank-1">
+                <div class="hex-badge">
+                  <svg viewBox="0 0 300 260" aria-hidden="true">
+                    <path class="laurel" d="M70 55 C50 95,52 165,74 205 C95 165,98 95,80 55 Z" />
+                    <path class="laurel" d="M230 55 C250 95,248 165,226 205 C205 165,202 95,220 55 Z" />
+                    <path class="podium-ribbon" d="M85 150 L215 150 Q225 170 215 190 L85 190 Q75 170 85 150 Z" />
+                    <path class="podium-ribbon-tail" d="M95 190 L80 235 L115 200 Z" />
+                    <path class="podium-ribbon-tail" d="M205 190 L220 235 L185 200 Z" />
+                  </svg>
+                  <div class="hex">{{ w.rank }}</div>
+                </div>
+                <div class="name">{{ w.name }}</div>
+              </div>
+            {% endif %}{% endfor %}
+            {% for w in senior_winners %}{% if w.rank == 3 %}
+              <div class="podium-item rank-3">
+                <div class="hex-badge">
+                  <svg viewBox="0 0 300 260" aria-hidden="true">
+                    <path class="laurel" d="M70 55 C50 95,52 165,74 205 C95 165,98 95,80 55 Z" />
+                    <path class="laurel" d="M230 55 C250 95,248 165,226 205 C205 165,202 95,220 55 Z" />
+                    <path class="podium-ribbon" d="M85 150 L215 150 Q225 170 215 190 L85 190 Q75 170 85 150 Z" />
+                    <path class="podium-ribbon-tail" d="M95 190 L80 235 L115 200 Z" />
+                    <path class="podium-ribbon-tail" d="M205 190 L220 235 L185 200 Z" />
+                  </svg>
+                  <div class="hex">{{ w.rank }}</div>
+                </div>
+                <div class="name">{{ w.name }}</div>
+              </div>
+            {% endif %}{% endfor %}
+          </div>
+          <ul class="text-xs divide-y divide-indigo-600/30 rounded-lg overflow-hidden border border-indigo-600/30">
+            <li class="grid grid-cols-3 bg-indigo-900/40 px-3 py-2 font-semibold text-indigo-100 text-[11px] tracking-wide uppercase"> <span>Rank</span><span class="col-span-2">Name</span></li>
+            {% for w in senior_winners %}
+              <li class="grid grid-cols-3 px-3 py-2 text-indigo-100/90 text-sm bg-indigo-900/20 hover:bg-indigo-800/30 transition">
+                <span>#{{ w.rank }}</span>
+                <span class="col-span-2">{{ w.name }}</span>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <div class="mt-10">
+      <a href="{% url 'home' %}" class="inline-block bg-purple-600 hover:bg-purple-500 px-6 py-3 rounded-lg font-semibold">Back to Home</a>
+    </div>
+  </main>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+  <!-- Removed stray debug div -->
+    const STATIC_IMG_BASE = "{% static 'img/' %}";
+    function openLightbox(id){
+      const src = `${STATIC_IMG_BASE}sage_event_${id}.jpg`;
+      const overlay = document.createElement('div');
+      overlay.className='fixed inset-0 bg-black/80 backdrop-blur flex items-center justify-center p-4 z-50';
+      overlay.addEventListener('click', (e)=>{ if(e.target===overlay) overlay.remove(); });
+      overlay.innerHTML = "<div class='relative max-w-4xl w-full'>"+
+        "<button aria-label='Close' class='absolute -top-3 -right-3 bg-red-600 hover:bg-red-500 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold text-lg' onclick='this.parentNode.parentNode.remove()'>&times;</button>"+
+        `<img src='${src}' class='w-full max-h-[80vh] object-contain rounded-lg shadow-2xl' alt='Event photo expanded'/>`+
+        "</div>";
+      document.body.appendChild(overlay);
+    }
+  </script>
+                <div class="flex flex-col items-center">

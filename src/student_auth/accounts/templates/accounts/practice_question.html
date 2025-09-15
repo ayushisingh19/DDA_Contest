@@ -1,0 +1,50 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Practice Question</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white">
+  <main class="max-w-2xl mx-auto p-6">
+    <a href="{% url 'practice_home' %}" class="text-sm text-purple-400">← Back</a>
+    <h1 class="text-xl font-bold mt-4 mb-4">Question</h1>
+    <div class="bg-white/5 border border-white/10 rounded-xl p-6">
+      <p class="mb-4">{{ question.text }}</p>
+      <form id="answerForm" method="post" class="space-y-3">{% csrf_token %}
+        {% for opt in question.options.all %}
+        <label class="block p-3 rounded-lg border border-white/10 hover:border-purple-400/50 cursor-pointer">
+          <input type="radio" name="option" value="{{ opt.id }}" class="mr-2"> {{ opt.text }}
+        </label>
+        {% endfor %}
+        <button class="mt-2 px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-500 font-semibold">Submit</button>
+      </form>
+      <div id="result" class="mt-4 text-sm hidden"></div>
+      {% if question.solution %}
+      <div id="solutionBox" class="mt-6 hidden bg-black/30 border border-white/10 rounded-lg p-4 text-sm leading-relaxed">
+        <h3 class="font-semibold mb-2 text-purple-300">Detailed Solution</h3>
+        <div class="whitespace-pre-line text-gray-200">{{ question.solution }}</div>
+      </div>
+      {% endif %}
+    </div>
+  </main>
+  <script>
+    const form=document.getElementById('answerForm');
+    form.addEventListener('submit',async(e)=>{
+      e.preventDefault();
+      const fd=new FormData(form);
+      const r=await fetch('',{method:'POST',body:fd});
+      const data=await r.json();
+      const box=document.getElementById('result');
+      box.classList.remove('hidden');
+      box.innerHTML = `<div class='${data.correct?'text-green-400':'text-red-400'} font-semibold mb-2'>${data.correct?'Correct!':'Incorrect'}</div>`+
+        `<div class='text-gray-300 mb-2'><span class='text-gray-400'>Answer:</span> ${data.answer||''}</div>`+
+        (data.explanation?`<div class='text-gray-400'>${data.explanation}</div>`:'');
+      const sol=document.getElementById('solutionBox');
+      if(sol){ sol.classList.remove('hidden'); }
+    });
+  </script>
+</body>
+</html>

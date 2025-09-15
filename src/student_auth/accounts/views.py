@@ -14,7 +14,20 @@ from django.urls import reverse
 from django.utils import timezone
 from django.contrib.auth.hashers import make_password, check_password
 
-from .models import Student, Contest, Problem, UserSolution, Submission, ContestAttempt, JuniorSubmission, SeniorSubmission
+from .models import (
+    Student,
+    Contest,
+    Problem,
+    UserSolution,
+    Submission,
+    ContestAttempt,
+    JuniorSubmission,
+    SeniorSubmission,
+    PracticeCategory,
+    PracticeSubtopic,
+    PracticeQuestion,
+    PracticeOption,
+)
 from .forms import ContestForm, ProblemForm, TestCaseFormSet
 from .utils import PasswordResetToken
 from .tasks import evaluate_submission
@@ -48,6 +61,63 @@ def student_login_required(view_func):
 
 def healthz(request):
     return JsonResponse({"status": "ok"})
+
+
+def practice_home(request):
+    """Show practice categories and subtopics (two-card style)."""
+    categories = (
+        PracticeCategory.objects.prefetch_related("subtopics")
+        .all()
+        .order_by("order", "name")
+    )
+    return render(
+        request,
+        "accounts/practice_home.html",
+        {
+            "categories": categories,
+        },
+    )
+
+
+def practice_question(request, question_id):
+    q = get_object_or_404(PracticeQuestion.objects.prefetch_related("options"), id=question_id, is_active=True)
+    if request.method == "POST":
+        picked = request.POST.get("option")
+        correct = q.correct_option
+        is_correct = str(correct.id) == picked if correct else False
+        return JsonResponse(
+            {
+                "correct": is_correct,
+                "explanation": q.explanation,
+                "answer": correct.text if correct else None,
+            }
+        )
+    return render(request, "accounts/practice_question.html", {"question": q})
+
+
+def practice_subtopic(request, subtopic_id):
+    subtopic = get_object_or_404(
+        PracticeSubtopic.objects.select_related("category"), id=subtopic_id
+    )
+    questions = (
+        subtopic.questions.filter(is_active=True)
+        .prefetch_related("options")
+        .order_by("id")
+    )
+    categories = (
+        PracticeCategory.objects.prefetch_related("subtopics")
+        .all()
+        .order_by("order", "name")
+    )
+    return render(
+        request,
+        "accounts/practice_subtopic.html",
+        {
+            "subtopic": subtopic,
+            "questions": questions,
+            "categories": categories,
+        },
+    )
 
 
 def register(request):
@@ -281,31 +351,87 @@ def home(request):
     return render(request, "accounts/home.html", {"student": student})
 
 
+def sage_highlights(request):
+    # Logged-in student (optional for navbar/personalization)
+    student_id = request.session.get("student_id")
+    student = Student.objects.filter(id=student_id).first()
+
+    # Provide list of event photos (ensure corresponding files exist in static/img)
+    # Name your files as: sage_event_1.jpg, sage_event_2.jpg, ...
+    gallery_images = ["1", "2", "3", "4", "5"]
+
+    # Winners extracted from screenshots provided by you
+    junior_winners = [
+        {"rank": 1, "name": "Ashi Gupta"},
+        {"rank": 2, "name": "Ankit Kumar Singh"},
+        {"rank": 3, "name": "Aniket Kumar"},
+    ]
+    senior_winners = [
+        {"rank": 1, "name": "Rajveer Pratap Singh"},
+        {"rank": 2, "name": "Suraj Yadav"},
+        {"rank": 3, "name": "Kaushiki Kumari"},
+    ]
+
+    context = {
+        "student": student,
+        "gallery_images": gallery_images,
+        "junior_winners": junior_winners,
+        "senior_winners": senior_winners,
+    }
+    return render(request, "accounts/sage_highlights.html", context)
+
+
 @student_login_required
 def contest(request):
     student_id = request.session.get("student_id")
     student = Student.objects.filter(id=student_id).first()
-    return render(request, "accounts/contest.html", {"student": student, "problems_url": reverse("problems")})
+    # Enable the start section only when there is an active contest
+    start_enabled = Contest.objects.filter(is_active=True).exists()
+    return render(
+        request,
+        "accounts/contest.html",
+        {
+            "student": student,
+            "problems_url": reverse("problems"),
+            "start_enabled": start_enabled,
+            "show_leaderboard": False,
+        },
+    )
 
 
 def contest_junior(request):
     student_id = request.session.get("student_id")
     student = Student.objects.filter(id=student_id).first()
+    start_enabled = Contest.objects.filter(is_active=True).exists()
     return render(
         request,
         "accounts/contest.html",
-        {"student": student, "problems_url": reverse("junior_problems")},
+        {
+            "student": student,
+            "problems_url": reverse("junior_problems"),
+            "start_enabled": start_enabled,
+            "show_leaderboard": False,
+        },
     )
 
 
 def contest_senior(request):
     student_id = request.session.get("student_id")
     student = Student.objects.filter(id=student_id).first()
+    start_enabled = Contest.objects.filter(is_active=True).exists()
     return render(
         request,
         "accounts/contest.html",
-        {"student": student, "problems_url": reverse("senior_problems")},
+        {
+            "student": student,
+            "problems_url": reverse("senior_problems"),
+            "start_enabled": start_enabled,
+            "show_leaderboard": False,
+        },
     )
+
+
+"""Removed earlier duplicate sage_highlights definition (now unified above)."""
 
 
 # --------------------- Admin Panel ---------------------

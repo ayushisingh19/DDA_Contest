@@ -1,0 +1,81 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ subtopic.name }} - Practice</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white">
+  <main class="container mx-auto px-6 py-10">
+    <div class="grid lg:grid-cols-12 gap-10">
+      <aside class="lg:col-span-4 space-y-6 order-first">
+        <div class="bg-white/5 border border-white/10 rounded-2xl p-6 sticky top-24 max-h-[80vh] overflow-y-auto">
+          <h3 class="font-semibold mb-4 flex items-center gap-2 text-green-300"><i data-lucide="list" class="w-4 h-4"></i> Categories</h3>
+          {% for cat in categories %}
+          <div class="mb-6 last:mb-0">
+            <div class="text-xs uppercase tracking-wide text-gray-400 mb-2">{{ cat.name }}</div>
+            <div class="flex flex-wrap gap-2">
+              {% for st in cat.subtopics.all %}
+              <a href="{% url 'practice_subtopic' st.id %}" class="px-2.5 py-1 rounded-md text-xs border {% if st.id == subtopic.id %}border-green-400 bg-green-500/20{% else %}border-white/10 bg-white/10{% endif %} hover:bg-green-500/20 hover:border-green-400/60 transition">{{ st.name }}</a>
+              {% endfor %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </aside>
+      <div class="lg:col-span-8 order-last">
+        <div class="flex items-center justify-between mb-6">
+          <a href="{% url 'practice_home' %}" class="text-sm text-purple-400">← Categories</a>
+          <div class="text-xs text-gray-400">Category: {{ subtopic.category.name }}</div>
+        </div>
+        <h1 class="text-3xl font-bold mb-6">{{ subtopic.name }}</h1>
+        {% if questions %}
+        <div class="space-y-6">
+        {% for q in questions %}
+        <div class="bg-white/5 border border-white/10 rounded-xl p-5" id="q{{ q.id }}">
+          <h2 class="font-semibold mb-3">Q{{ forloop.counter }}. {{ q.text }}</h2>
+          <form class="space-y-2" method="post" onsubmit="return submitQuestion(event, {{ q.id }})">{% csrf_token %}
+            {% for opt in q.options.all %}
+            <label class="flex gap-2 items-start p-2 rounded-lg border border-white/10 hover:border-purple-400/50 cursor-pointer">
+              <input type="radio" name="option" value="{{ opt.id }}" required class="mt-1"> <span class="flex-1">{{ opt.text }}</span>
+            </label>
+            {% endfor %}
+            <button class="mt-2 px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-500 font-semibold">Submit</button>
+          </form>
+          <div class="result mt-3 text-sm hidden"></div>
+          {% if q.solution %}
+          <div class="solution hidden mt-4 bg-black/30 border border-white/10 rounded-lg p-4 text-sm">
+            <h3 class="font-semibold text-purple-300 mb-2">Detailed Solution</h3>
+            <div class="whitespace-pre-line text-gray-200">{{ q.solution }}</div>
+          </div>
+          {% endif %}
+        </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-gray-400">No questions yet.</p>
+        {% endif %}
+      </div>
+    </div>
+  </main>
+  <script>
+    async function submitQuestion(e,id){
+      e.preventDefault();
+      const form=e.target; const fd=new FormData(form);
+      const res=await fetch('{% url 'practice_question' 0 %}'.replace('/0/','/'+id+'/'),{method:'POST',body:fd});
+      const data=await res.json();
+      const box=form.parentElement.querySelector('.result');
+      box.classList.remove('hidden');
+      box.innerHTML=`<div class='${data.correct?'text-green-400':'text-red-400'} font-semibold mb-1'>${data.correct?'Correct':'Incorrect'}</div>`+
+        `<div class='text-gray-300 mb-1'><span class='text-gray-400'>Answer:</span> ${data.answer||''}</div>`+
+        (data.explanation?`<div class='text-gray-400'>${data.explanation}</div>`:'');
+      form.querySelectorAll('button,input').forEach(el=>el.disabled=true);
+      const sol=form.parentElement.querySelector('.solution');
+      if(sol){ sol.classList.remove('hidden'); }
+      return false;
+    }
+  </script>
+</body>
+</html>

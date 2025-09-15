@@ -216,7 +216,8 @@
       <div class="hidden md:flex items-center space-x-8 font-medium">
         <a href="#home" class="text-purple-400 hover:text-purple-300 transition scroll-link">Home</a>
         <a href="#about" class="text-gray-300 hover:text-white transition scroll-link">About</a>
-        <a href="#contact" class="text-gray-300 hover:text-white transition scroll-link">Contact</a>
+  <a href="#contact" class="text-gray-300 hover:text-white transition scroll-link">Contact</a>
+  <a href="{% url 'practice_home' %}" class="text-gray-300 hover:text-white transition">Practice</a>
         <a href="{% url 'contest' %}" class="flex items-center space-x-1 text-gray-300 hover:text-white transition">
           <span>Contests</span>
          
@@ -536,7 +537,7 @@
       
       <div class="grid md:grid-cols-2 gap-6 max-w-6xl mx-auto">
         
-        <!-- Sage Coding Competition -->
+        <!-- Sage Coding Competition (Ended) -->
         <div class="bg-gray-800 rounded-2xl p-6 border border-gray-700 hover:border-purple-500 transition-all duration-300 hover:scale-105">
           <!-- Contest Tags -->
           <div class="flex flex-wrap gap-2 mb-4">
@@ -572,109 +573,83 @@
             </div>
           </div>
           
-          <!-- Action Buttons -->
+          <!-- Actions (Ended) -->
           <div class="flex gap-4">
-            <a href="{% url 'register' %}" class="bg-yellow-500 hover:bg-yellow-400 text-black px-6 py-3 rounded-lg font-semibold transition-colors flex-1 text-center">
-              Register
+            <button disabled class="bg-gray-600 text-gray-300 px-6 py-3 rounded-lg font-semibold flex-1 text-center cursor-not-allowed">
+              Contest Ended
+            </button>
+            <a href="{% url 'sage_highlights' %}" class="bg-green-600 hover:bg-green-500 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+              View Highlights
             </a>
-            <a href="{% url 'contest' %}" class="border border-gray-600 hover:border-gray-500 text-gray-300 hover:text-white px-6 py-3 rounded-lg font-semibold transition-colors">
-              Details
-            </a>
-          </div>
-          
-          <!-- Countdown -->
-          <div class="mt-6 text-center">
-            <p class="text-gray-400 text-sm mb-2">Contest starts in</p>
-            <div class="flex justify-center gap-4 countdown-container" id="sage-countdown">
-              <div class="bg-purple-600 px-3 py-2 rounded-lg">
-                <span class="text-white font-bold text-lg countdown-days">00</span>
-                <p class="text-xs text-purple-200">DAYS</p>
-              </div>
-              <div class="bg-purple-600 px-3 py-2 rounded-lg">
-                <span class="text-white font-bold text-lg countdown-hours">00</span>
-                <p class="text-xs text-purple-200">HRS</p>
-              </div>
-              <div class="bg-purple-600 px-3 py-2 rounded-lg">
-                <span class="text-white font-bold text-lg countdown-minutes">00</span>
-                <p class="text-xs text-purple-200">MIN</p>
-              </div>
-              <div class="bg-purple-600 px-3 py-2 rounded-lg">
-                <span class="text-white font-bold text-lg countdown-seconds">00</span>
-                <p class="text-xs text-purple-200">SEC</p>
-              </div>
-            </div>
           </div>
         </div>
         
-        <!-- Weekly Coding Challenge -->
-        <div class="bg-gray-800 rounded-2xl p-6 border border-gray-700 hover:border-green-500 transition-all duration-300 hover:scale-105">
+        <!-- New Upcoming Contest: Autumn Code Sprint 2025 -->
+        <div class="bg-gray-800 rounded-2xl p-6 border border-gray-700 hover:border-blue-500 transition-all duration-300 hover:scale-105">
           <!-- Contest Tags -->
           <div class="flex flex-wrap gap-2 mb-4">
             <span class="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-semibold flex items-center">
               <span class="w-2 h-2 bg-white rounded-full mr-2 animate-pulse"></span>
-              LIVE
+              UPCOMING
             </span>
-            <span class="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold">Easy</span>
             <span class="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold">Online</span>
+            <span class="bg-orange-500 text-white px-3 py-1 rounded-full text-sm font-semibold">Hard</span>
           </div>
           
           <!-- Contest Title -->
-          <h3 class="text-2xl font-bold text-white mb-4">Weekly Coding Challenge #15</h3>
+          <h3 class="text-2xl font-bold text-white mb-4"> Code  2025</h3>
           
           <!-- Contest Description -->
           <p class="text-gray-400 mb-6 leading-relaxed">
-            Weekly algorithmic contest perfect for beginners and intermediate programmers. Sharpen your problem-solving skills.
+            A high-intensity coding sprint featuring algorithmic puzzles and data structures. Compete online and climb the leaderboard.
           </p>
           
           <!-- Contest Details -->
           <div class="space-y-3 mb-8">
             <div class="flex items-center text-gray-300">
-              <i data-lucide="calendar" class="w-4 h-4 mr-3 text-green-400"></i>
-              <span>September 15, 2025</span>
-              <i data-lucide="clock" class="w-4 h-4 ml-6 mr-3 text-green-400"></i>
-              <span>2:00 PM IST</span>
+              <i data-lucide="calendar" class="w-4 h-4 mr-3 text-blue-400"></i>
+              <span>September 30, 2025</span>
+              <i data-lucide="clock" class="w-4 h-4 ml-6 mr-3 text-blue-400"></i>
+              <span>11:00 AM IST</span>
             </div>
             <div class="flex items-center text-gray-300">
-              <i data-lucide="clock" class="w-4 h-4 mr-3 text-green-400"></i>
-              <span>Duration: 2 hours</span>
-              <i data-lucide="users" class="w-4 h-4 ml-6 mr-3 text-green-400"></i>
-              <span>180 participants</span>
+              <i data-lucide="clock" class="w-4 h-4 mr-3 text-blue-400"></i>
+              <span>Duration: 3 hours</span>
+              <i data-lucide="users" class="w-4 h-4 ml-6 mr-3 text-blue-400"></i>
+              <span>250+ expected</span>
             </div>
             <div class="flex items-center text-gray-300">
-              <i data-lucide="globe" class="w-4 h-4 mr-3 text-green-400"></i>
+              <i data-lucide="globe" class="w-4 h-4 mr-3 text-blue-400"></i>
               <span>Online Contest</span>
             </div>
           </div>
           
           <!-- Action Buttons -->
           <div class="flex gap-4">
-            <button disabled class="bg-gray-600 text-gray-400 px-6 py-3 rounded-lg font-semibold flex-1 text-center cursor-not-allowed opacity-60">
-              Join Contest (Coming Soon)
-            </button>
-            <a href="#" class="border border-gray-600 hover:border-gray-500 text-gray-300 hover:text-white px-6 py-3 rounded-lg font-semibold transition-colors">
-              Details
+            <a href="{% url 'register' %}" class="border border-gray-600 hover:border-gray-500 text-gray-300 hover:text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+              Register
             </a>
           </div>
           
           <!-- Countdown -->
           <div class="mt-6 text-center">
             <p class="text-gray-400 text-sm mb-2">Contest starts in</p>
-            <div class="flex justify-center gap-4 countdown-container" id="weekly-countdown">
-              <div class="bg-green-600 px-3 py-2 rounded-lg">
+            <div class="flex justify-center gap-4 countdown-container" id="autumn-countdown">
+              <div class="bg-blue-600 px-3 py-2 rounded-lg">
                 <span class="text-white font-bold text-lg countdown-days">00</span>
-                <p class="text-xs text-green-200">DAYS</p>
+                <p class="text-xs text-blue-200">DAYS</p>
               </div>
-              <div class="bg-green-600 px-3 py-2 rounded-lg">
+              <div class="bg-blue-600 px-3 py-2 rounded-lg">
                 <span class="text-white font-bold text-lg countdown-hours">00</span>
-                <p class="text-xs text-green-200">HRS</p>
+                <p class="text-xs text-blue-200">HRS</p>
               </div>
-              <div class="bg-green-600 px-3 py-2 rounded-lg">
+              <div class="bg-blue-600 px-3 py-2 rounded-lg">
                 <span class="text-white font-bold text-lg countdown-minutes">00</span>
-                <p class="text-xs text-green-200">MIN</p>
+                <p class="text-xs text-blue-200">MIN</p>
               </div>
-              <div class="bg-green-600 px-3 py-2 rounded-lg">
+              <div class="bg-blue-600 px-3 py-2 rounded-lg">
                 <span class="text-white font-bold text-lg countdown-seconds">00</span>
-                <p class="text-xs text-green-200">SEC</p>
+                <p class="text-xs text-blue-200">SEC</p>
               </div>
             </div>
           </div>
@@ -1311,7 +1286,7 @@
         <div class="text-center mt-6">
           <p class="text-gray-500 text-sm flex items-center justify-center space-x-2">
             <i data-lucide="heart" class="w-4 h-4 text-red-500"></i>
-            <span>Powered by passion for coding excellence • 11+ years of tech education experience</span>
+            <span>Decode Data Academy Bhopal</span>
           </p>
         </div>
       </div>
@@ -1413,17 +1388,18 @@
 
     // Live Countdown Timer Function
     function initializeCountdowns() {
-      // Contest dates (September 15, 2025 at specific times)
+      // Updated contest dates
       const contests = [
         {
           id: 'sage-countdown',
-          date: new Date('2025-09-15 10:00:00').getTime(), // Sage Contest: Sep 15, 10:00 AM
-          name: 'Sage Coding Competition'
+          date: new Date('2025-09-15 10:00:00').getTime(),
+          name: 'Sage Coding Competition',
+          ended: true
         },
         {
-          id: 'weekly-countdown',
-          date: new Date('2025-09-15 14:00:00').getTime(), // Weekly Contest: Sep 15, 2:00 PM
-          name: 'Weekly Coding Challenge'
+          id: 'autumn-countdown',
+          date: new Date('2025-09-30 11:00:00').getTime(),
+          name: 'Autumn Code Sprint 2025'
         }
       ];
 
@@ -1448,7 +1424,8 @@
             updateCountdownDisplay(countdownElement, days, hours, minutes, seconds);
           } else {
             // Contest has started or ended
-            showContestStatus(countdownElement, 'Contest has started!');
+            const msg = contest.ended ? 'Contest ended' : 'Contest has started!';
+            showContestStatus(countdownElement, msg);
           }
         });
       }, 1000);

@@ -268,6 +268,76 @@ class SeniorSubmission(models.Model):
         return f"Senior {self.orig_submission} - {self.status} ({self.score}/{self.max_score})"
 
 
+# ----------------- Practice / MCQ Models -----------------
+class PracticeCategory(models.Model):
+    name = models.CharField(max_length=120, unique=True)
+    slug = models.SlugField(max_length=140, unique=True)
+    description = models.TextField(blank=True)
+    icon = models.CharField(max_length=40, blank=True, help_text="Optional lucide icon name")
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["order", "name"]
+
+    def __str__(self):
+        return self.name
+
+
+class PracticeSubtopic(models.Model):
+    category = models.ForeignKey(PracticeCategory, related_name="subtopics", on_delete=models.CASCADE)
+    name = models.CharField(max_length=120)
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        unique_together = ("category", "name")
+        ordering = ["category", "order", "name"]
+
+    def __str__(self):
+        return f"{self.category.name} - {self.name}"
+
+
+class PracticeQuestion(models.Model):
+    DIFFICULTY_CHOICES = [
+        ("Easy", "Easy"),
+        ("Medium", "Medium"),
+        ("Hard", "Hard"),
+    ]
+    subtopic = models.ForeignKey(PracticeSubtopic, related_name="questions", on_delete=models.CASCADE)
+    text = models.TextField()
+    difficulty = models.CharField(max_length=10, choices=DIFFICULTY_CHOICES, default="Easy")
+    explanation = models.TextField(blank=True, help_text="Short explanation or justification")
+    solution = models.TextField(blank=True, help_text="Detailed step-by-step solution (optional)")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.text[:80]
+
+    @property
+    def correct_option(self):
+        return self.options.filter(is_correct=True).first()
+
+
+class PracticeOption(models.Model):
+    question = models.ForeignKey(PracticeQuestion, related_name="options", on_delete=models.CASCADE)
+    text = models.CharField(max_length=500)
+    is_correct = models.BooleanField(default=False)
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["order", "id"]
+
+    def __str__(self):
+        return f"Option for Q{self.question_id}: {self.text[:50]}"
+
+    def save(self, *args, **kwargs):
+        # Ensure only one correct option per question
+        super().save(*args, **kwargs)
+        if self.is_correct:
+            self.question.options.exclude(id=self.id).update(is_correct=False)
+
+
 class SubmissionTestCaseResult(models.Model):
     submission = models.ForeignKey(
         Submission, on_delete=models.CASCADE, related_name="results"
