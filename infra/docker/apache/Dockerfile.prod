@@ -1,0 +1,29 @@
+# Apache-based web container for DDA Contest
+# Multi-stage: build frontend with Node, then serve via Apache httpd
+
+FROM node:20-alpine AS build-frontend
+WORKDIR /app/frontend
+COPY frontend/package*.json ./
+RUN npm ci || npm install
+COPY frontend/ /app/frontend/
+ARG VITE_API_BASE_URL
+ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
+RUN npm run build
+
+FROM httpd:2.4-alpine
+# Create mount points for static and media
+RUN mkdir -p /var/www/static /var/www/media
+# Enable required modules (uncomment lines in default httpd.conf)
+RUN sed -i 's/#LoadModule proxy_module/LoadModule proxy_module/' /usr/local/apache2/conf/httpd.conf \
+    && sed -i 's/#LoadModule proxy_http_module/LoadModule proxy_http_module/' /usr/local/apache2/conf/httpd.conf \
+    && sed -i 's/#LoadModule rewrite_module/LoadModule rewrite_module/' /usr/local/apache2/conf/httpd.conf \
+    && sed -i 's/#LoadModule headers_module/LoadModule headers_module/' /usr/local/apache2/conf/httpd.conf
+# Add our virtual host
+COPY infra/docker/apache/ddacontest.conf /usr/local/apache2/conf/extra/ddacontest.conf
+RUN echo '\n# DDA Contest vhost\nInclude conf/extra/ddacontest.conf' >> /usr/local/apache2/conf/httpd.conf
+# Copy built frontend
+COPY --from=build-frontend /app/frontend/dist/ /usr/local/apache2/htdocs/
+VOLUME ["/var/www/static", "/var/www/media"]
+EXPOSE 80
+
+# Default CMD inherited from httpd base image
