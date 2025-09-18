@@ -3,7 +3,7 @@ from . import views
 
 
 urlpatterns = [
-    path("", views.home, name="home"),
+    path("", views.index, name="index"),
     path("healthz/", views.healthz, name="healthz"),
     path("api/healthz/", views.healthz, name="api-healthz"),
     path("register/", views.register, name="register"),
@@ -76,3 +76,6 @@ urlpatterns = [
     # Health check endpoint
     path("healthz/", views.health_check, name="health_check"),
 ]
+
+# Optional: maintain 'home' name for compatibility
+urlpatterns.insert(0, path("", views.index, name="home"))

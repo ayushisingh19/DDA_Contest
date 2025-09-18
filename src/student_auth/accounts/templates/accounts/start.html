@@ -529,7 +529,7 @@
         <i data-lucide="send" class="w-4 h-4"></i>
         Submit
       </button>
-      <a href="{% url 'home' %}" class="text-gray-300 hover:text-white transition-colors">
+  <a href="{% url 'index' %}" class="text-gray-300 hover:text-white transition-colors">
         <i data-lucide="home" class="w-5 h-5"></i>
       </a>
     </div>
@@ -696,7 +696,7 @@
       const runCodeUrl = null;
       const problemId = null;
     {% endif %}
-  const homeUrl = "{% url 'home' %}";
+  const homeUrl = "{% url 'index' %}";
   const endContestUrl = "{% url 'end_contest' %}";
 
     // --- CSRF + Draft persistence helpers (per problem + language) ---

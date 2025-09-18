@@ -43,13 +43,13 @@ def student_login_required(view_func):
         if not student_id:
             request.session["next_url"] = request.path
             messages.info(request, "Please register and login to access this page.")
-            return redirect("home")
+            return redirect("index")
 
         student = Student.objects.filter(id=student_id).first()
         if not student:
             request.session.flush()
             messages.error(request, "Session expired. Please login again.")
-            return redirect("home")
+            return redirect("index")
 
         return view_func(request, *args, **kwargs)
 
@@ -180,7 +180,7 @@ def login(request):
 
 def logout(request):
     request.session.flush()
-    return redirect("home")
+    return redirect("index")
 
 
 # --------------------- Password Reset Views ---------------------
@@ -345,10 +345,13 @@ Decode Data Academy Team
     )
 
 
-def home(request):
+def index(request):
     student_id = request.session.get("student_id")
     student = Student.objects.filter(id=student_id).first()
-    return render(request, "accounts/home.html", {"student": student})
+    return render(request, "accounts/index.html", {"student": student})
+
+# Backward compatibility alias if any code still references 'home'
+home = index
 
 
 def sage_highlights(request):

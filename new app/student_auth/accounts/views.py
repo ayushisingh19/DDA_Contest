@@ -270,7 +270,7 @@ Decode Data Academy Team
 def home(request):
     student_id = request.session.get('student_id')
     student = Student.objects.filter(id=student_id).first()
-    return render(request, 'accounts/home.html', {'student': student})
+    return render(request, 'accounts/index.html', {'student': student})
 
 
 @student_login_required
